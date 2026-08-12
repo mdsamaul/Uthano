@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: uthano-backend
+    container_name: uthano-app
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=uthano
+      - DB_USERNAME=uthano
+      - DB_PASSWORD=uthano_password
+      - REDIS_HOST=redis
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - uthano-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: uthano-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./storage:/var/www/html/storage
+    depends_on:
+      - app
+    networks:
+      - uthano-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: uthano-mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=uthano
+      - MYSQL_USER=uthano
+      - MYSQL_PASSWORD=uthano_password
+      - MYSQL_ROOT_PASSWORD=root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - uthano-network
+
+  redis:
+    image: redis:alpine
+    container_name: uthano-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - uthano-network
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  uthano-network:
+    driver: bridge
