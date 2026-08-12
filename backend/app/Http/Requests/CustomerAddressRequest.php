@@ -11,6 +11,18 @@ class CustomerAddressRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Map 'address' to 'address_line' so both field names are accepted.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('address') && !$this->has('address_line')) {
+            $this->merge([
+                'address_line' => $this->input('address'),
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -21,9 +33,10 @@ class CustomerAddressRequest extends FormRequest
             'upazila' => ['required', 'string', 'max:100'],
             'area' => ['nullable', 'string', 'max:100'],
             'address_line' => ['required', 'string', 'max:500'],
+            'address' => ['sometimes', 'string', 'max:500'],
             'postal_code' => ['nullable', 'string', 'max:20'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
-            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,90'],
             'address_type' => ['nullable', 'in:HOME,OFFICE,OTHER'],
             'is_default' => ['nullable', 'boolean'],
         ];

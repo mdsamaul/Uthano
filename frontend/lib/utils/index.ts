@@ -157,11 +157,16 @@ export const ORDER_STATUS_COLORS: Record<string, string> = {
   cancelled: 'bg-red-100 text-red-800',
 };
 
+// export const PAYMENT_METHOD_LABELS: Record<string, string> = {
+//   COD: 'Cash on Delivery',
+//   bkash: 'bKash',
+//   nagad: 'Nagad',
+//   card: 'Card',
+// };
+
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  cod: 'Cash on Delivery',
-  bkash: 'bKash',
-  nagad: 'Nagad',
-  card: 'Card',
+  COD: 'Cash on Delivery',
+  ONLINE: 'Online Payment',
 };
 
 export const PAYMENT_STATUS_LABELS: Record<string, string> = {

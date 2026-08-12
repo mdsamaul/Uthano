@@ -290,7 +290,7 @@ export type OrderStatus =
   | 'delivered'
   | 'cancelled';
 
-export type PaymentMethod = 'cod' | 'bkash' | 'nagad' | 'card';
+export type PaymentMethod = 'COD' | 'bkash' | 'nagad' | 'card';
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
@@ -358,7 +358,7 @@ export interface Address {
   district: string;
   upazila: string;
   area: string;
-  address: string;
+  address_line: string;
   postal_code?: string;
   is_default: boolean;
   created_at: string;

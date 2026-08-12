@@ -37,7 +37,7 @@ export function CheckoutClient() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('COD');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -395,7 +395,7 @@ export function CheckoutClient() {
               <div className="space-y-3">
                 <label
                   className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
-                    paymentMethod === 'cod'
+                    paymentMethod === 'COD'
                       ? 'border-primary bg-primary-light/30'
                       : 'border-border hover:border-primary/50'
                   }`}
@@ -403,8 +403,8 @@ export function CheckoutClient() {
                   <input
                     type="radio"
                     name="payment"
-                    checked={paymentMethod === 'cod'}
-                    onChange={() => setPaymentMethod('cod')}
+                    checked={paymentMethod === 'COD'}
+                    onChange={() => setPaymentMethod('COD')}
                     className="h-4 w-4 text-primary"
                   />
                   <div>
@@ -486,7 +486,7 @@ export function CheckoutClient() {
               <Card className="p-6">
                 <h3 className="font-semibold">Payment</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {paymentMethod === 'cod' ? 'Cash on Delivery' : paymentMethod}
+                  {paymentMethod === 'COD' ? 'Cash on Delivery' : paymentMethod}
                 </p>
               </Card>
             </div>

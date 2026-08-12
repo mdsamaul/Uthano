@@ -1,20 +1,155 @@
 {
   "info": {
     "name": "UTHANO API",
-    "description": "UTHANO Farm-to-Home Marketplace REST API",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "description": "UTHANO Farm-to-Home Marketplace REST API - Complete Postman Collection\n\nAll endpoints are under /api/v1 prefix.\n\nAuthentication: Uses Laravel Sanctum. After login, use the returned token as a Bearer token in the Authorization header.\n\nRoles:\n- Public: No authentication required\n- Authenticated: Any logged-in user\n- Farmer: Users with 'farmer' role\n- Admin/Staff/Warehouse Manager: Users with 'admin', 'staff', or 'warehouse_manager' roles\n\nVariables:\n- base_url: API base URL (default: http://localhost:8000/api/v1)\n- docker_url: Docker nginx URL (http://localhost:80/api/v1)\n- token: Sanctum API token (set after login)\n- product_id: Last created product ID\n- farmer_id: Last created farmer ID\n- farm_id: Last created farm ID\n- harvest_id: Last created harvest ID\n- warehouse_id: Last created warehouse ID\n- inventory_id: Last inventory item ID\n- quality_check_id: Last quality check ID\n- review_id: Last product review ID\n- coupon_id: Last created coupon ID\n- packaging_type_id: Last created packaging type ID\n- packaging_item_id: Last created packaging item ID\n- delivery_agent_id: Last created delivery agent ID\n- delivery_zone_id: Last created delivery zone ID\n- delivery_id: Last created delivery ID\n- order_id: Last created order ID\n- notification_id: Last notification ID\n- address_id: Last created address ID\n- category_id: Last created category ID\n- customer_id: Last created customer ID\n- audit_log_id: Last audit log ID\n- sourcing_id: Last created sourcing record ID",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "uthano-api-collection"
   },
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:8080/api/v1"
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "docker_url",
+      "value": "http://localhost:80/api/v1",
+      "type": "string"
     },
     {
       "key": "token",
-      "value": ""
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "product_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "farmer_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "farm_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "harvest_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "warehouse_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "inventory_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "quality_check_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "review_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "coupon_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "packaging_type_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "packaging_item_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "delivery_agent_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "delivery_zone_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "delivery_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "notification_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "address_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "category_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "customer_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "audit_log_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "sourcing_id",
+      "value": "1",
+      "type": "string"
     }
   ],
   "item": [
+    {
+      "name": "API Info",
+      "item": [
+        {
+          "name": "API Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "Auth",
       "item": [
@@ -28,16 +163,22 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password\",\n  \"password_confirmation\": \"password\"\n}"
-            },
             "url": {
               "raw": "{{base_url}}/auth/register",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password\",\n  \"password_confirmation\": \"password\",\n  \"phone\": \"01700000001\"\n}"
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Login",
@@ -49,16 +190,22 @@
                 "value": "application/json"
               }
             ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"admin@uthano.com\",\n  \"password\": \"password\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Logout",
@@ -72,13 +219,19 @@
             ],
             "url": {
               "raw": "{{base_url}}/auth/logout",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "logout"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Get Profile",
+          "name": "Get Profile (Me)",
           "request": {
             "method": "GET",
             "header": [
@@ -89,25 +242,89 @@
             ],
             "url": {
               "raw": "{{base_url}}/auth/me",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "me"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "Products",
+      "name": "Categories",
       "item": [
         {
-          "name": "List Products",
+          "name": "List Categories",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/products?page=1&per_page=20",
-              "host": ["{{base_url}}"],
-              "path": ["products"],
+              "raw": "{{base_url}}/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                },
+                {
+                  "key": "active_only",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Category by Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/fresh-fruits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories",
+                "fresh-fruits"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products (Public)",
+      "item": [
+        {
+          "name": "List Products (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -119,47 +336,75 @@
                 }
               ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "View Product",
+          "name": "View Product by ID (Public)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/products/1",
-              "host": ["{{base_url}}"],
-              "path": ["products", "1"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                "1"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Create Product (Admin)",
+          "name": "View Product by Slug (Public)",
           "request": {
-            "method": "POST",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/fresh-mango",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                "fresh-mango"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customer Profile",
+      "item": [
+        {
+          "name": "Get Customer Profile",
+          "request": {
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"category_id\": 1,\n  \"unit_id\": 1,\n  \"name\": \"Fresh Mango\",\n  \"slug\": \"fresh-mango\",\n  \"sku\": \"UTH-MANGO-001\",\n  \"product_type\": \"FRESH\",\n  \"base_price\": 80,\n  \"selling_price\": 100,\n  \"cost_price\": 60,\n  \"minimum_order_quantity\": 1,\n  \"status\": \"ACTIVE\"\n}"
-            },
             "url": {
-              "raw": "{{base_url}}/admin/products",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "products"]
+              "raw": "{{base_url}}/customer/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "customer",
+                "profile"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Update Product (Admin)",
+          "name": "Update Customer Profile",
           "request": {
             "method": "PUT",
             "header": [
@@ -172,21 +417,32 @@
                 "value": "application/json"
               }
             ],
+            "url": {
+              "raw": "{{base_url}}/customer/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "customer",
+                "profile"
+              ]
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Mango\",\n  \"selling_price\": 120\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/products/1",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "products", "1"]
+              "raw": "{\n  \"full_name\": \"Updated Name\",\n  \"phone\": \"01700000001\",\n  \"alternate_phone\": \"01700000002\"\n}"
             }
-          }
-        },
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customer Addresses",
+      "item": [
         {
-          "name": "Delete Product (Admin)",
+          "name": "List Addresses",
           "request": {
-            "method": "DELETE",
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
@@ -194,19 +450,20 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/admin/products/1",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "products", "1"]
+              "raw": "{{base_url}}/customer/addresses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "customer",
+                "addresses"
+              ]
             }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Orders",
-      "item": [
+          },
+          "response": []
+        },
         {
-          "name": "Create Order",
+          "name": "Create Address",
           "request": {
             "method": "POST",
             "header": [
@@ -219,21 +476,59 @@
                 "value": "application/json"
               }
             ],
+            "url": {
+              "raw": "{{base_url}}/customer/addresses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "customer",
+                "addresses"
+              ]
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"address_id\": 1,\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    }\n  ],\n  \"payment_method\": \"COD\"\n}"
+              "raw": "{\n  \"name\": \"Home\",\n  \"phone\": \"01700000001\",\n  \"division\": \"Dhaka\",\n  \"district\": \"Dhaka\",\n  \"upazila\": \"Dhanmondi\",\n  \"area\": \"House 12, Road 5\",\n  \"address_line\": \"House 12, Road 5, Dhanmondi, Dhaka\",\n  \"postal_code\": \"1209\",\n  \"latitude\": 23.7535,\n  \"longitude\": 90.3945,\n  \"address_type\": \"HOME\",\n  \"is_default\": true\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/customer/addresses/{{address_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "customer",
+                "addresses",
+                "{{address_id}}"
+              ]
             },
-            "url": {
-              "raw": "{{base_url}}/orders",
-              "host": ["{{base_url}}"],
-              "path": ["orders"]
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Office\",\n  \"phone\": \"01700000002\",\n  \"division\": \"Dhaka\",\n  \"district\": \"Dhaka\",\n  \"upazila\": \"Gulshan\",\n  \"address_line\": \"House 12, Road 5, Gulshan, Dhaka\",\n  \"postal_code\": \"1212\",\n  \"address_type\": \"OFFICE\",\n  \"is_default\": false\n}"
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "List My Orders",
+          "name": "Delete Address",
           "request": {
-            "method": "GET",
+            "method": "DELETE",
             "header": [
               {
                 "key": "Authorization",
@@ -241,28 +536,18 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/orders",
-              "host": ["{{base_url}}"],
-              "path": ["orders"]
+              "raw": "{{base_url}}/customer/addresses/{{address_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "customer",
+                "addresses",
+                "{{address_id}}"
+              ]
             }
-          }
-        },
-        {
-          "name": "View Order",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/orders/1",
-              "host": ["{{base_url}}"],
-              "path": ["orders", "1"]
-            }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -281,10 +566,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/cart",
-              "host": ["{{base_url}}"],
-              "path": ["cart"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Add to Cart",
@@ -300,24 +590,108 @@
                 "value": "application/json"
               }
             ],
+            "url": {
+              "raw": "{{base_url}}/cart/items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart",
+                "items"
+              ]
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"product_id\": 1,\n  \"quantity\": 2\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/cart/items",
-              "host": ["{{base_url}}"],
-              "path": ["cart", "items"]
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cart/items/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1,\n  \"quantity\": 5\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cart/items/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "Admin - Farmers",
+      "name": "Orders (Customer)",
       "item": [
         {
-          "name": "List Farmers",
+          "name": "List My Orders",
           "request": {
             "method": "GET",
             "header": [
@@ -327,14 +701,29 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/admin/farmers",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "farmers"]
+              "raw": "{{base_url}}/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Create Farmer",
+          "name": "Create Order",
           "request": {
             "method": "POST",
             "header": [
@@ -347,24 +736,24 @@
                 "value": "application/json"
               }
             ],
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"full_name\": \"Rahim Ahmed\",\n  \"phone\": \"01700000002\",\n  \"status\": \"ACTIVE\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/farmers",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "farmers"]
+              "raw": "{\n  \"address_id\": 1,\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    }\n  ],\n  \"payment_method\": \"COD\",\n  \"notes\": \"Please deliver after 5pm\",\n  \"warehouse_id\": 1\n}"
             }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Farms",
-      "item": [
+          },
+          "response": []
+        },
         {
-          "name": "List Farms",
+          "name": "View Order",
           "request": {
             "method": "GET",
             "header": [
@@ -374,14 +763,20 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/admin/farms",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "farms"]
+              "raw": "{{base_url}}/orders/{{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders",
+                "{{order_id}}"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Create Farm",
+          "name": "Cancel Order",
           "request": {
             "method": "POST",
             "header": [
@@ -394,546 +789,23 @@
                 "value": "application/json"
               }
             ],
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/cancel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders",
+                "{{order_id}}",
+                "cancel"
+              ]
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"farmer_id\": 1,\n  \"farm_name\": \"Rahim Agro Farm\",\n  \"division\": \"Khulna\",\n  \"district\": \"Jhenaidah\",\n  \"upazila\": \"Kaliganj\",\n  \"village\": \"Barobazar\",\n  \"address\": \"Village Barobazar, Kaliganj, Jhenaidah\",\n  \"land_area\": 5.5,\n  \"land_area_unit\": \"bigha\",\n  \"status\": \"ACTIVE\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/farms",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "farms"]
+              "raw": "{\n  \"reason\": \"Changed my mind\"\n}"
             }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Harvests",
-      "item": [
-        {
-          "name": "List Harvests",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/harvests",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "harvests"]
-            }
-          }
-        },
-        {
-          "name": "Create Harvest",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"farm_id\": 1,\n  \"product_id\": 1,\n  \"harvest_date\": \"2026-08-10\",\n  \"estimated_quantity\": 500,\n  \"actual_quantity\": 500,\n  \"quantity_unit_id\": 1,\n  \"quality_grade\": \"A\",\n  \"status\": \"BATCHED\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/harvests",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "harvests"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Warehouses",
-      "item": [
-        {
-          "name": "List Warehouses",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/warehouses",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "warehouses"]
-            }
-          }
-        },
-        {
-          "name": "Create Warehouse",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Jhenaidah Collection Center\",\n  \"type\": \"COLLECTION_CENTER\",\n  \"address\": \"Kaliganj, Jhenaidah\",\n  \"district\": \"Jhenaidah\",\n  \"area\": \"Kaliganj\",\n  \"status\": \"ACTIVE\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/warehouses",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "warehouses"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Inventory",
-      "item": [
-        {
-          "name": "List Inventory",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/inventory",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "inventory"]
-            }
-          }
-        },
-        {
-          "name": "Adjust Inventory",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"quantity\": 10,\n  \"movement_type\": \"ADJUSTMENT\",\n  \"notes\": \"Stock adjustment\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/inventory/1/adjust",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "inventory", "1", "adjust"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Deliveries",
-      "item": [
-        {
-          "name": "List Deliveries",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/deliveries",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "deliveries"]
-            }
-          }
-        },
-        {
-          "name": "Create Delivery",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"order_id\": 1,\n  \"delivery_zone_id\": 1,\n  \"pickup_warehouse_id\": 1,\n  \"delivery_fee\": 50\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/deliveries",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "deliveries"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Dashboard",
-      "item": [
-        {
-          "name": "Dashboard Summary",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/dashboard",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "dashboard"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Quality Checks",
-      "item": [
-        {
-          "name": "List Quality Checks",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/quality-checks",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "quality-checks"]
-            }
-          }
-        },
-        {
-          "name": "Create Quality Check",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"product_id\": 1,\n  \"warehouse_id\": 1,\n  \"appearance\": \"Good\",\n  \"freshness\": \"Fresh\",\n  \"damaged_quantity\": 0,\n  \"accepted_quantity\": 100,\n  \"rejected_quantity\": 0,\n  \"grade\": \"A\",\n  \"status\": \"PENDING\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/quality-checks",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "quality-checks"]
-            }
-          }
-        },
-        {
-          "name": "Approve Quality Check",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/quality-checks/1/approve",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "quality-checks", "1", "approve"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Product Reviews",
-      "item": [
-        {
-          "name": "List Product Reviews",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/product-reviews",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "product-reviews"]
-            }
-          }
-        },
-        {
-          "name": "Approve Product Review",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/product-reviews/1/approve",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "product-reviews", "1", "approve"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Coupons",
-      "item": [
-        {
-          "name": "List Coupons",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/coupons",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "coupons"]
-            }
-          }
-        },
-        {
-          "name": "Create Coupon",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"code\": \"TEST20\",\n  \"type\": \"PERCENTAGE\",\n  \"value\": 20,\n  \"minimum_order_amount\": 100,\n  \"start_at\": \"2026-08-11\",\n  \"end_at\": \"2026-09-11\",\n  \"usage_limit\": 100,\n  \"is_active\": true\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/coupons",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "coupons"]
-            }
-          }
-        },
-        {
-          "name": "Toggle Coupon Status",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/coupons/1/toggle",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "coupons", "1", "toggle"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Packaging",
-      "item": [
-        {
-          "name": "List Packaging Types",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/packaging-types",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "packaging-types"]
-            }
-          }
-        },
-        {
-          "name": "Create Packaging Type",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Standard Box\",\n  \"code\": \"BOX-STD\",\n  \"description\": \"Standard packaging box\",\n  \"capacity\": 10,\n  \"capacity_unit\": \"kg\",\n  \"is_reusable\": false,\n  \"is_active\": true\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/packaging-types",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "packaging-types"]
-            }
-          }
-        },
-        {
-          "name": "List Packaging Items",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/packaging-items",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "packaging-items"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Admin - Delivery Agents & Zones",
-      "item": [
-        {
-          "name": "List Delivery Agents",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/delivery-agents",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "delivery-agents"]
-            }
-          }
-        },
-        {
-          "name": "Create Delivery Agent",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"agent_code\": \"AGENT-001\",\n  \"phone\": \"01700000001\",\n  \"vehicle_type\": \"Motorcycle\",\n  \"vehicle_number\": \"DHK-1234\",\n  \"status\": \"ACTIVE\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/delivery-agents",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "delivery-agents"]
-            }
-          }
-        },
-        {
-          "name": "List Delivery Zones",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/delivery-zones",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "delivery-zones"]
-            }
-          }
-        },
-        {
-          "name": "Create Delivery Zone",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Dhaka Central\",\n  \"district\": \"Dhaka\",\n  \"area\": \"Dhanmondi, Mohammadpur\",\n  \"base_charge\": 50,\n  \"weight_based_charge\": 10,\n  \"status\": \"ACTIVE\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/delivery-zones",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "delivery-zones"]
-            }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -952,10 +824,48 @@
             ],
             "url": {
               "raw": "{{base_url}}/notifications",
-              "host": ["{{base_url}}"],
-              "path": ["notifications"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "View Notification",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications/{{notification_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notification_id}}"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Mark Notification as Read",
@@ -968,14 +878,44 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/notifications/1/read",
-              "host": ["{{base_url}}"],
-              "path": ["notifications", "1", "read"]
+              "raw": "{{base_url}}/notifications/{{notification_id}}/read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notification_id}}",
+                "read"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "Unread Count",
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications/read-all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications",
+                "read-all"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unread Count",
           "request": {
             "method": "GET",
             "header": [
@@ -986,10 +926,2769 @@
             ],
             "url": {
               "raw": "{{base_url}}/notifications/unread-count",
-              "host": ["{{base_url}}"],
-              "path": ["notifications", "unread-count"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications",
+                "unread-count"
+              ]
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications/{{notification_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notification_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete All Notifications",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Farmer Portal",
+      "item": [
+        {
+          "name": "Farmer Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/farmer/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "farmer",
+                "dashboard"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Farmer Farms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/farmer/farms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "farmer",
+                "farms"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Farmer Harvests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/farmer/harvests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "farmer",
+                "harvests"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Farmer Sourcing Records",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/farmer/sourcing-records",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "farmer",
+                "sourcing-records"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Farmer Earnings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/farmer/earnings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "farmer",
+                "earnings"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Dashboard",
+      "item": [
+        {
+          "name": "Dashboard Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "dashboard"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Products",
+      "item": [
+        {
+          "name": "Create Product (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/products",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "products"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": 1,\n  \"unit_id\": 1,\n  \"name\": \"Fresh Mango\",\n  \"slug\": \"fresh-mango\",\n  \"description\": \"Premium fresh mangoes from local farms\",\n  \"short_description\": \"Sweet and juicy mangoes\",\n  \"sku\": \"UTH-MANGO-001\",\n  \"product_type\": \"FRESH\",\n  \"base_price\": 80,\n  \"selling_price\": 100,\n  \"cost_price\": 60,\n  \"minimum_order_quantity\": 1,\n  \"maximum_order_quantity\": 100,\n  \"stock_tracking\": true,\n  \"is_featured\": true,\n  \"is_active\": true,\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/products/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "products",
+                "{{product_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Mango\",\n  \"selling_price\": 120,\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/products/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "products",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Farmers",
+      "item": [
+        {
+          "name": "List Farmers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/farmers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "farmers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Farmer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/farmers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "farmers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"full_name\": \"Rahim Ahmed\",\n  \"phone\": \"01700000002\",\n  \"alternate_phone\": \"01700000003\",\n  \"national_id\": \"1234567890\",\n  \"status\": \"ACTIVE\",\n  \"verification_status\": \"VERIFIED\",\n  \"notes\": \"Verified farmer\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Farmer",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/farmers/{{farmer_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "farmers",
+                "{{farmer_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Farmer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/farmers/{{farmer_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "farmers",
+                "{{farmer_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Updated Name\",\n  \"phone\": \"01700000002\",\n  \"status\": \"ACTIVE\",\n  \"verification_status\": \"VERIFIED\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Farmer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/farmers/{{farmer_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "farmers",
+                "{{farmer_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Farms",
+      "item": [
+        {
+          "name": "List Farms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/farms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "farms"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Farm",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/farms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "farms"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmer_id\": 1,\n  \"farm_name\": \"Rahim Agro Farm\",\n  \"division\": \"Khulna\",\n  \"district\": \"Jhenaidah\",\n  \"upazila\": \"Kaliganj\",\n  \"union\": \"Barobazar\",\n  \"village\": \"Barobazar\",\n  \"address\": \"Village Barobazar, Kaliganj, Jhenaidah\",\n  \"latitude\": 23.5446,\n  \"longitude\": 89.2959,\n  \"land_area\": 5.5,\n  \"land_area_unit\": \"bigha\",\n  \"soil_type\": \"Clay\",\n  \"irrigation_type\": \"Tube well\",\n  \"farming_method\": \"Organic\",\n  \"status\": \"ACTIVE\",\n  \"verification_status\": \"VERIFIED\",\n  \"notes\": \"Good quality farm\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Farm",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/farms/{{farm_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "farms",
+                "{{farm_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Farm",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/farms/{{farm_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "farms",
+                "{{farm_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farm_name\": \"Updated Farm Name\",\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Farm",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/farms/{{farm_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "farms",
+                "{{farm_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Harvests",
+      "item": [
+        {
+          "name": "List Harvests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/harvests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "harvests"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Harvest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/harvests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "harvests"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farm_id\": 1,\n  \"farm_crop_id\": 1,\n  \"product_id\": 1,\n  \"harvest_date\": \"2026-08-10\",\n  \"estimated_quantity\": 500,\n  \"actual_quantity\": 500,\n  \"quantity_unit_id\": 1,\n  \"quality_grade\": \"A\",\n  \"status\": \"BATCHED\",\n  \"notes\": \"Good harvest\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Harvest",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/harvests/{{harvest_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "harvests",
+                "{{harvest_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Harvest",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/harvests/{{harvest_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "harvests",
+                "{{harvest_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actual_quantity\": 550,\n  \"quality_grade\": \"A+\",\n  \"status\": \"BATCHED\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Harvest",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/harvests/{{harvest_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "harvests",
+                "{{harvest_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Sourcing Records",
+      "item": [
+        {
+          "name": "List Sourcing Records",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/sourcing-records",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "sourcing-records"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Sourcing Record",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/sourcing-records",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "sourcing-records"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmer_id\": 1,\n  \"farm_id\": 1,\n  \"harvest_batch_id\": 1,\n  \"product_id\": 1,\n  \"quantity\": 500,\n  \"unit_id\": 1,\n  \"purchase_price\": 80,\n  \"transport_cost\": 500,\n  \"packaging_cost\": 100,\n  \"other_cost\": 50,\n  \"sourced_at\": \"2026-08-10\",\n  \"warehouse_id\": 1,\n  \"notes\": \"Fresh harvest\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Sourcing Record",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/sourcing-records/{{sourcing_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "sourcing-records",
+                "{{sourcing_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Receive Sourcing Record",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/sourcing-records/{{sourcing_id}}/receive",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "sourcing-records",
+                "{{sourcing_id}}",
+                "receive"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Sourcing Record",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/sourcing-records/{{sourcing_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "sourcing-records",
+                "{{sourcing_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Warehouses",
+      "item": [
+        {
+          "name": "List Warehouses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/warehouses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "warehouses"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Warehouse",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/warehouses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "warehouses"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dhaka Central Warehouse\",\n  \"type\": \"WAREHOUSE\",\n  \"address\": \"123, Tejgaon Industrial Area, Dhaka\",\n  \"district\": \"Dhaka\",\n  \"area\": \"Tejgaon\",\n  \"latitude\": 23.7465,\n  \"longitude\": 90.3965,\n  \"manager_id\": 1,\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Warehouse",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/warehouses/{{warehouse_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "warehouses",
+                "{{warehouse_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Warehouse",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/warehouses/{{warehouse_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "warehouses",
+                "{{warehouse_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Warehouse Name\",\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Warehouse",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/warehouses/{{warehouse_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "warehouses",
+                "{{warehouse_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Inventory",
+      "item": [
+        {
+          "name": "List Inventory Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/inventory",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "inventory"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Inventory Item",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/inventory/{{inventory_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "inventory",
+                "{{inventory_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Inventory Movements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/inventory/{{inventory_id}}/movements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "inventory",
+                "{{inventory_id}}",
+                "movements"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adjust Inventory",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/inventory/{{inventory_id}}/adjust",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "inventory",
+                "{{inventory_id}}",
+                "adjust"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 10,\n  \"movement_type\": \"ADJUSTMENT\",\n  \"notes\": \"Manual adjustment\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Transfer Inventory",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/inventory/transfer",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "inventory",
+                "transfer"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inventory_item_id\": 1,\n  \"from_warehouse_id\": 1,\n  \"to_warehouse_id\": 2,\n  \"quantity\": 50,\n  \"notes\": \"Transfer to Dhaka hub\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Traceability",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/traceability/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "traceability",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Quality Checks",
+      "item": [
+        {
+          "name": "List Quality Checks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/quality-checks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "quality-checks"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Quality Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/quality-checks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "quality-checks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1,\n  \"harvest_batch_id\": 1,\n  \"warehouse_id\": 1,\n  \"appearance\": \"Good\",\n  \"freshness\": \"Fresh\",\n  \"damaged_quantity\": 5,\n  \"accepted_quantity\": 495,\n  \"rejected_quantity\": 0,\n  \"grade\": \"A\",\n  \"status\": \"PENDING\",\n  \"notes\": \"Quality check passed\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Quality Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/quality-checks/{{quality_check_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "quality-checks",
+                "{{quality_check_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Quality Check",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/quality-checks/{{quality_check_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "quality-checks",
+                "{{quality_check_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appearance\": \"Excellent\",\n  \"freshness\": \"Very Fresh\",\n  \"damaged_quantity\": 2,\n  \"accepted_quantity\": 498,\n  \"rejected_quantity\": 0,\n  \"grade\": \"A+\",\n  \"status\": \"APPROVED\",\n  \"notes\": \"Updated quality check\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Quality Check",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/quality-checks/{{quality_check_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "quality-checks",
+                "{{quality_check_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Quality Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/quality-checks/{{quality_check_id}}/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "quality-checks",
+                "{{quality_check_id}}",
+                "approve"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Quality Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/quality-checks/{{quality_check_id}}/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "quality-checks",
+                "{{quality_check_id}}",
+                "reject"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Damaged produce\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Product Reviews",
+      "item": [
+        {
+          "name": "List Product Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product-reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product-reviews"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product-reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product-reviews"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1,\n  \"order_id\": 1,\n  \"order_item_id\": 1,\n  \"rating\": 5,\n  \"title\": \"Excellent product\",\n  \"comment\": \"Fresh and delicious mangoes!\",\n  \"status\": \"PENDING\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Product Review",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product-reviews/{{review_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product-reviews",
+                "{{review_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product-reviews/{{review_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product-reviews",
+                "{{review_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"title\": \"Updated review title\",\n  \"comment\": \"Good product overall\",\n  \"status\": \"APPROVED\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product-reviews/{{review_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product-reviews",
+                "{{review_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Product Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product-reviews/{{review_id}}/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product-reviews",
+                "{{review_id}}",
+                "approve"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Product Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product-reviews/{{review_id}}/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product-reviews",
+                "{{review_id}}",
+                "reject"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Inappropriate content\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Coupons",
+      "item": [
+        {
+          "name": "List Coupons",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupons"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupons"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"UTH10\",\n  \"type\": \"PERCENTAGE\",\n  \"value\": 10,\n  \"minimum_order_amount\": 500,\n  \"maximum_discount\": 100,\n  \"start_at\": \"2026-01-01\",\n  \"end_at\": \"2026-12-31\",\n  \"usage_limit\": 100,\n  \"per_customer_limit\": 1,\n  \"is_active\": true\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Coupon",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupons/{{coupon_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupons",
+                "{{coupon_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Coupon",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupons/{{coupon_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupons",
+                "{{coupon_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"UTH15\",\n  \"type\": \"PERCENTAGE\",\n  \"value\": 15,\n  \"minimum_order_amount\": 300,\n  \"maximum_discount\": 150,\n  \"start_at\": \"2026-01-01\",\n  \"end_at\": \"2026-12-31\",\n  \"usage_limit\": 200,\n  \"per_customer_limit\": 2,\n  \"is_active\": true\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Coupon",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupons/{{coupon_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupons",
+                "{{coupon_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Coupon Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupons/{{coupon_id}}/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupons",
+                "{{coupon_id}}",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Packaging Types",
+      "item": [
+        {
+          "name": "List Packaging Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-types",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-types"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Packaging Type",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-types",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-types"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cardboard Box\",\n  \"code\": \"BOX-001\",\n  \"description\": \"Standard cardboard box for produce\",\n  \"capacity\": 10,\n  \"capacity_unit\": \"kg\",\n  \"is_reusable\": true,\n  \"is_active\": true\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Packaging Type",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-types/{{packaging_type_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-types",
+                "{{packaging_type_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Packaging Type",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-types/{{packaging_type_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-types",
+                "{{packaging_type_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Box Name\",\n  \"code\": \"BOX-001\",\n  \"description\": \"Updated description\",\n  \"capacity\": 15,\n  \"capacity_unit\": \"kg\",\n  \"is_reusable\": true,\n  \"is_active\": true\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Packaging Type",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-types/{{packaging_type_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-types",
+                "{{packaging_type_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Packaging Type Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-types/{{packaging_type_id}}/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-types",
+                "{{packaging_type_id}}",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Packaging Items",
+      "item": [
+        {
+          "name": "List Packaging Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-items"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Packaging Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-items"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"packaging_type_id\": 1,\n  \"warehouse_id\": 1,\n  \"code\": \"ITEM-001\",\n  \"status\": \"AVAILABLE\",\n  \"current_quantity\": 100,\n  \"notes\": \"Initial stock\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Packaging Item",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-items/{{packaging_item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-items",
+                "{{packaging_item_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Packaging Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-items/{{packaging_item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-items",
+                "{{packaging_item_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"packaging_type_id\": 1,\n  \"warehouse_id\": 1,\n  \"code\": \"ITEM-001\",\n  \"status\": \"IN_USE\",\n  \"current_quantity\": 95,\n  \"notes\": \"Updated notes\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Packaging Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-items/{{packaging_item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-items",
+                "{{packaging_item_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Packaging Item Movements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/packaging-items/{{packaging_item_id}}/movements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "packaging-items",
+                "{{packaging_item_id}}",
+                "movements"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Delivery Agents",
+      "item": [
+        {
+          "name": "List Delivery Agents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-agents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-agents"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Delivery Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-agents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-agents"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"agent_code\": \"AGENT-001\",\n  \"phone\": \"01700000005\",\n  \"vehicle_type\": \"Motorcycle\",\n  \"vehicle_number\": \"DHK-1234\",\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Delivery Agent",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-agents/{{delivery_agent_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-agents",
+                "{{delivery_agent_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Delivery Agent",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-agents/{{delivery_agent_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-agents",
+                "{{delivery_agent_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"agent_code\": \"AGENT-001\",\n  \"phone\": \"01700000005\",\n  \"vehicle_type\": \"Motorcycle\",\n  \"vehicle_number\": \"DHK-1234\",\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Delivery Agent",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-agents/{{delivery_agent_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-agents",
+                "{{delivery_agent_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Delivery Agent Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-agents/{{delivery_agent_id}}/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-agents",
+                "{{delivery_agent_id}}",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Delivery Zones",
+      "item": [
+        {
+          "name": "List Delivery Zones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-zones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-zones"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Delivery Zone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-zones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-zones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dhaka North\",\n  \"district\": \"Dhaka\",\n  \"area\": \"North Dhaka\",\n  \"base_charge\": 50,\n  \"weight_based_charge\": 10,\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Delivery Zone",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-zones/{{delivery_zone_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-zones",
+                "{{delivery_zone_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Delivery Zone",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-zones/{{delivery_zone_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-zones",
+                "{{delivery_zone_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Zone Name\",\n  \"district\": \"Dhaka\",\n  \"area\": \"North Dhaka\",\n  \"base_charge\": 60,\n  \"weight_based_charge\": 12,\n  \"status\": \"ACTIVE\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Delivery Zone",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-zones/{{delivery_zone_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-zones",
+                "{{delivery_zone_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Delivery Zone Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/delivery-zones/{{delivery_zone_id}}/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "delivery-zones",
+                "{{delivery_zone_id}}",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Deliveries",
+      "item": [
+        {
+          "name": "List Deliveries",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/deliveries",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "deliveries"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/deliveries",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "deliveries"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": 1,\n  \"delivery_zone_id\": 1,\n  \"pickup_warehouse_id\": 1,\n  \"delivery_fee\": 50,\n  \"customer_note\": \"Deliver to back gate\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Delivery",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/deliveries/{{delivery_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "deliveries",
+                "{{delivery_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Delivery Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/deliveries/{{delivery_id}}/assign",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "deliveries",
+                "{{delivery_id}}",
+                "assign"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_agent_id\": 1\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Delivery Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/deliveries/{{delivery_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "deliveries",
+                "{{delivery_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"PICKED_UP\",\n  \"notes\": \"Package picked up from warehouse\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Orders",
+      "item": [
+        {
+          "name": "Confirm Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/orders/{{order_id}}/confirm",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "orders",
+                "{{order_id}}",
+                "confirm"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"warehouse_id\": 1\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/orders/{{order_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "orders",
+                "{{order_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONFIRMED\",\n  \"notes\": \"Order confirmed by admin\"\n}"
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -1008,10 +3707,104 @@
             ],
             "url": {
               "raw": "{{base_url}}/admin/audit-logs",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "audit-logs"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "audit-logs"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "View Audit Log",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/audit-logs/{{audit_log_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "audit-logs",
+                "{{audit_log_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Audit Log",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/audit-logs/{{audit_log_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "audit-logs",
+                "{{audit_log_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Old Audit Logs",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/audit-logs/cleanup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "audit-logs",
+                "cleanup"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "90"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }
