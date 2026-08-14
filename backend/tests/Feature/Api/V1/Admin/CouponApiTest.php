@@ -18,10 +18,13 @@ class CouponApiTest extends TestCase
         $this->seed(RoleAndPermissionSeeder::class);
     }
 
-    private function actingAsAdmin(): User
+        private function actingAsAdmin(): User
     {
         $user = User::factory()->create();
         $user->assignRole('admin');
+        // RBAC: admins are permission-based. Grant the coupon-module
+        // permissions this CRUD suite exercises.
+        $user->givePermissionTo(['coupon.view', 'coupon.manage']);
 
         return $user;
     }

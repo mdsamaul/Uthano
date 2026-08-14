@@ -148,7 +148,7 @@ export function AddressesClient() {
               </div>
               <div className="sm:col-span-2">
                 <label className="mb-1 block text-sm font-medium">Full Address</label>
-                <Textarea placeholder="House, road, area details" error={errors.address?.message} {...register('address')} />
+                <Textarea placeholder="House, road, area details" error={errors.address_line?.message} {...register('address_line')} />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Postal Code</label>
@@ -187,7 +187,7 @@ export function AddressesClient() {
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">{address.phone}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {address.address}, {address.area}, {address.upazila}, {address.district}, {address.division}
+                    {address.address_line}, {address.area}, {address.upazila}, {address.district}, {address.division}
                   </p>
                 </div>
                 <div className="flex gap-2">

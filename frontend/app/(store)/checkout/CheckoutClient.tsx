@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { customerService, orderService } from '@/services';
 import { useCartStore, useAuthStore, useUIStore } from '@/store';
+import { OtpFlow } from '@/components/auth/OtpFlow';
 import { formatBDT } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -126,6 +127,16 @@ export function CheckoutClient() {
     );
   }
 
+  // Customers verify with their phone number before checkout.
+  if (!isAuthenticated) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <h1 className="mb-8 text-center text-3xl font-bold">Checkout</h1>
+        <OtpFlow />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <h1 className="mb-8 text-3xl font-bold">Checkout</h1>
@@ -226,7 +237,7 @@ export function CheckoutClient() {
                               {address.phone}
                             </p>
                             <p className="mt-1 text-sm text-muted-foreground">
-                              {address.address}, {address.area}, {address.upazila},{' '}
+                              {address.address_line}, {address.area}, {address.upazila},{' '}
                               {address.district}, {address.division}
                               {address.postal_code && ` - ${address.postal_code}`}
                             </p>
@@ -313,8 +324,8 @@ export function CheckoutClient() {
                             </label>
                             <Textarea
                               placeholder="House, road, area details"
-                              error={errors.address?.message}
-                              {...register('address')}
+                              error={errors.address_line?.message}
+                              {...register('address_line')}
                             />
                           </div>
                           <div>
@@ -474,7 +485,7 @@ export function CheckoutClient() {
                         <p className="font-medium text-foreground">{address.name}</p>
                         <p>{address.phone}</p>
                         <p>
-                          {address.address}, {address.area}, {address.upazila},{' '}
+                          {address.address_line}, {address.area}, {address.upazila},{' '}
                           {address.district}, {address.division}
                         </p>
                       </div>

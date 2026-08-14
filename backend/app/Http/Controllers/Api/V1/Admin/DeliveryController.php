@@ -16,7 +16,8 @@ class DeliveryController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Delivery::query()->with(['order', 'deliveryAgent', 'deliveryZone', 'pickupWarehouse']);
+        $query = Delivery::query()
+            ->with(['order.customer', 'order.items', 'deliveryAgent', 'deliveryZone', 'pickupWarehouse']);
 
         $user = $request->user();
 
@@ -41,9 +42,54 @@ class DeliveryController extends Controller
 
         $deliveries = $query->orderByDesc('created_at')->paginate($request->get('per_page', 20));
 
-        return ApiResponse::paginated(
+        // Map deliveries to include order_number, customer_name, phone for frontend table
+        $mapped = $deliveries->getCollection()->map(function ($delivery) {
+            $order = $delivery->order;
+            $customer = $order?->customer;
+
+            return [
+                'id' => $delivery->id,
+                'delivery_code' => $delivery->delivery_code,
+                'order_id' => $delivery->order_id,
+                'order_number' => $order?->order_number,
+                'customer_name' => $customer?->full_name ?? $order?->customer_name,
+                'phone' => $order?->phone ?? $customer?->phone,
+                'delivery_agent_id' => $delivery->delivery_agent_id,
+                'delivery_zone_id' => $delivery->delivery_zone_id,
+                'pickup_warehouse_id' => $delivery->pickup_warehouse_id,
+                'assigned_at' => $delivery->assigned_at?->toISOString(),
+                'picked_up_at' => $delivery->picked_up_at?->toISOString(),
+                'out_for_delivery_at' => $delivery->out_for_delivery_at?->toISOString(),
+                'delivered_at' => $delivery->delivered_at?->toISOString(),
+                'failed_at' => $delivery->failed_at?->toISOString(),
+                'status' => $delivery->status,
+                'delivery_fee' => (float) $delivery->delivery_fee,
+                'customer_note' => $delivery->customer_note,
+                'proof_of_delivery' => $delivery->proof_of_delivery,
+                'created_at' => $delivery->created_at?->toISOString(),
+                'updated_at' => $delivery->updated_at?->toISOString(),
+                'order' => $order ? [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'total' => (float) $order->total,
+                ] : null,
+                'delivery_agent' => $delivery->deliveryAgent ? [
+                    'id' => $delivery->deliveryAgent->id,
+                    'name' => $delivery->deliveryAgent->name,
+                    'phone' => $delivery->deliveryAgent->phone,
+                ] : null,
+                'delivery_zone' => $delivery->deliveryZone ? [
+                    'id' => $delivery->deliveryZone->id,
+                    'name' => $delivery->deliveryZone->name,
+                ] : null,
+            ];
+        });
+
+        $deliveries->setCollection($mapped);
+
+                return ApiResponse::paginated(
             'Deliveries fetched successfully',
-            $deliveries,
+            $deliveries->getCollection()->all(),
             [
                 'current_page' => $deliveries->currentPage(),
                 'per_page' => $deliveries->perPage(),

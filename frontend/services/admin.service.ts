@@ -1,6 +1,10 @@
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api/client';
 import {
+  AccessCatalog,
+  AdminUserFormValues,
+  AuditLog,
   Category,
+  Coupon,
   Customer,
   DashboardStats,
   Delivery,
@@ -9,13 +13,16 @@ import {
   Harvest,
   HarvestBatch,
   Inventory,
+  MyAccess,
   Order,
   PaginatedData,
   Product,
   QualityCheck,
+  Role,
   SalesChartData,
   TopFarm,
   TopProduct,
+  Unit,
   User,
   Warehouse,
 } from '@/types';
@@ -78,6 +85,11 @@ export const adminService = {
     await apiDelete<void>(`/admin/categories/${id}`);
   },
 
+  // Units (product form selects)
+  async getUnits(): Promise<Unit[]> {
+    return apiGet<Unit[]>('/admin/units');
+  },
+
   // Orders
   async getOrders(page = 1, perPage = 20, status?: string): Promise<PaginatedData<Order>> {
     const query = buildQueryString({ page, per_page: perPage, status });
@@ -89,7 +101,7 @@ export const adminService = {
   },
 
   async updateOrderStatus(id: number, status: Order['status']): Promise<Order> {
-    return apiPut<Order>(`/admin/orders/${id}/status`, { status });
+    return apiPost<Order>(`/admin/orders/${id}/status`, { status });
   },
 
   // Customers
@@ -194,8 +206,115 @@ export const adminService = {
     return apiGet<unknown>(`/admin/traceability/${batchCode}`);
   },
 
-  // Users (for delivery agents)
+  // Delivery Agents (for assignment)
   async getDeliveryAgents(): Promise<User[]> {
-    return apiGet<User[]>('/admin/users/delivery-agents');
+    return apiGet<User[]>('/admin/delivery-agents');
+  },
+
+  // ============================================
+  // Access management (users / roles / permissions)
+  // ============================================
+
+  async getMyAccess(): Promise<MyAccess> {
+    return apiGet<MyAccess>('/admin/access/my');
+  },
+
+  async getAccessCatalog(): Promise<AccessCatalog> {
+    return apiGet<AccessCatalog>('/admin/access/catalog');
+  },
+
+  async getUsers(page = 1, perPage = 20, search?: string, role?: string): Promise<PaginatedData<User>> {
+    const query = buildQueryString({ page, per_page: perPage, search, role });
+    return apiGet<PaginatedData<User>>(`/admin/users${query}`);
+  },
+
+  async getUser(id: number): Promise<User> {
+    return apiGet<User>(`/admin/users/${id}`);
+  },
+
+  async createUser(data: Partial<AdminUserFormValues> & { password: string }): Promise<User> {
+    return apiPost<User>('/admin/users', data);
+  },
+
+  async updateUser(id: number, data: Partial<AdminUserFormValues>): Promise<User> {
+    return apiPut<User>(`/admin/users/${id}`, data);
+  },
+
+  async deleteUser(id: number): Promise<void> {
+    await apiDelete<void>(`/admin/users/${id}`);
+  },
+
+  async toggleUserStatus(id: number): Promise<User> {
+    return apiPost<User>(`/admin/users/${id}/toggle`);
+  },
+
+  async updateUserRoles(id: number, roles: string[]): Promise<User> {
+    return apiPut<User>(`/admin/users/${id}/roles`, { roles });
+  },
+
+  async updateUserPermissions(id: number, permissions: number[]): Promise<User> {
+    return apiPut<User>(`/admin/users/${id}/permissions`, { permissions });
+  },
+
+  async getRoles(): Promise<Role[]> {
+    return apiGet<Role[]>('/admin/roles');
+  },
+
+  async getRole(id: number): Promise<Role> {
+    return apiGet<Role>(`/admin/roles/${id}`);
+  },
+
+  async createRole(data: { name: string; slug: string; description?: string; permissions?: number[] }): Promise<Role> {
+    return apiPost<Role>('/admin/roles', data);
+  },
+
+  async updateRole(id: number, data: { name?: string; slug?: string; description?: string; permissions?: number[] }): Promise<Role> {
+    return apiPut<Role>(`/admin/roles/${id}`, data);
+  },
+
+  async deleteRole(id: number): Promise<void> {
+    await apiDelete<void>(`/admin/roles/${id}`);
+  },
+
+  async updateRolePermissions(id: number, permissions: number[]): Promise<Role> {
+    return apiPut<Role>(`/admin/roles/${id}/permissions`, { permissions });
+  },
+
+  // ============================================
+  // Coupons
+  // ============================================
+
+  async getCoupons(page = 1, perPage = 20, search?: string): Promise<PaginatedData<Coupon>> {
+    const query = buildQueryString({ page, per_page: perPage, search });
+    return apiGet<PaginatedData<Coupon>>(`/admin/coupons${query}`);
+  },
+
+  async getCoupon(id: number): Promise<Coupon> {
+    return apiGet<Coupon>(`/admin/coupons/${id}`);
+  },
+
+  async createCoupon(data: Partial<Coupon>): Promise<Coupon> {
+    return apiPost<Coupon>('/admin/coupons', data);
+  },
+
+  async updateCoupon(id: number, data: Partial<Coupon>): Promise<Coupon> {
+    return apiPut<Coupon>(`/admin/coupons/${id}`, data);
+  },
+
+  async deleteCoupon(id: number): Promise<void> {
+    await apiDelete<void>(`/admin/coupons/${id}`);
+  },
+
+  async toggleCoupon(id: number): Promise<Coupon> {
+    return apiPost<Coupon>(`/admin/coupons/${id}/toggle`);
+  },
+
+  // ============================================
+  // Audit logs
+  // ============================================
+
+  async getAuditLogs(page = 1, perPage = 20, filters?: { action?: string; user_id?: number; from?: string; to?: string }): Promise<PaginatedData<AuditLog>> {
+    const query = buildQueryString({ page, per_page: perPage, ...filters });
+    return apiGet<PaginatedData<AuditLog>>(`/admin/audit-logs${query}`);
   },
 };

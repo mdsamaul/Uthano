@@ -9,10 +9,6 @@ class UserResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $roles = $this->relationLoaded('roles')
-            ? $this->roles->pluck('slug')
-            : collect([$this->role_slug ?? 'customer']);
-
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -20,10 +16,9 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'avatar' => $this->avatar,
             'is_active' => $this->is_active,
-            'role' => $roles->first() ?? 'customer',
-            'roles' => $roles,
-            'created_at' => $this->created_at?->toISOString(),
-            'updated_at' => $this->updated_at?->toISOString(),
+            'role' => $this->role ?? 'customer',
+            'created_at' => $this->created_at?->toIso8601String(),
+            'updated_at' => $this->updated_at?->toIso8601String(),
         ];
     }
 }

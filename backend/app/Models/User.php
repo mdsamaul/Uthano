@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -28,6 +27,7 @@ class User extends Authenticatable
         'phone',
         'avatar',
         'is_active',
+        'role',
     ];
 
     /**
@@ -54,14 +54,52 @@ class User extends Authenticatable
         ];
     }
 
-    public function roles(): BelongsToMany
+    /**
+     * Check if user has a specific role (using simple role field)
+     */
+    public function hasRole(string $role): bool
     {
-        return $this->belongsToMany(Role::class);
+        return $this->role === $role;
     }
 
-    public function permissions(): BelongsToMany
+    /**
+     * Check if user has any of the given roles
+     */
+    public function hasAnyRole(array $roles): bool
     {
-        return $this->belongsToMany(Permission::class);
+        return in_array($this->role, $roles);
+    }
+
+    /**
+     * Check if user is super admin
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'superadmin';
+    }
+
+    /**
+     * Check if user is admin (superadmin or admin)
+     */
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, ['superadmin', 'admin']);
+    }
+
+    /**
+     * Check if user is farmer
+     */
+    public function isFarmer(): bool
+    {
+        return $this->role === 'farmer';
+    }
+
+    /**
+     * Check if user is customer
+     */
+    public function isCustomer(): bool
+    {
+        return $this->role === 'customer';
     }
 
     public function customerProfile(): HasOne
@@ -94,33 +132,12 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class);
     }
 
-    public function hasRole(string $role): bool
+    /**
+     * Simple role-based access without complex permissions
+     * Admins (superadmin, admin, staff, warehouse_manager) have admin access
+     */
+    public function hasAdminAccess(): bool
     {
-        return $this->roles()->where('slug', $role)->exists();
-    }
-
-    public function hasAnyRole(array $roles): bool
-    {
-        return $this->roles()->whereIn('slug', $roles)->exists();
-    }
-
-    public function hasPermission(string $permission): bool
-    {
-        return $this->roles()->whereHas('permissions', function ($query) use ($permission) {
-            $query->where('slug', $permission);
-        })->exists();
-    }
-
-    public function assignRole(string $role): void
-    {
-        $roleModel = Role::where('slug', $role)->first();
-        if ($roleModel) {
-            $this->roles()->syncWithoutDetaching([$roleModel->id]);
-        }
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->hasRole('admin');
+        return in_array($this->role, ['superadmin', 'admin', 'staff', 'warehouse_manager']);
     }
 }

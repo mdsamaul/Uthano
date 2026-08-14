@@ -48,10 +48,18 @@ class ApiResponse
         return response()->json($response, $status);
     }
 
-    public static function paginated(string $message, mixed $data, array $pagination): JsonResponse
+                    public static function paginated(string $message, mixed $data, array $pagination): JsonResponse
     {
-        return self::success($message, $data, 200, [
-            'pagination' => $pagination,
+        // Emit the { items, meta } wrapper the frontend expects
+        // (PaginatedData<T> = { items: T[]; meta: PaginationMeta }).
+        $pagination = array_merge([
+            'from' => 1,
+            'to'   => $pagination['total'] ?? 0,
+        ], $pagination);
+
+        return self::success($message, [
+            'items' => $data,
+            'meta'  => $pagination,
         ]);
     }
 }

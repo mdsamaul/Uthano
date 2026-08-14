@@ -22,9 +22,17 @@ class CheckPermission
             ], 401);
         }
 
+        // Super admin has unrestricted access
+        if ($user->isSuperAdmin()) {
+            return $next($request);
+        }
+
         foreach ($permissions as $permission) {
-            if ($user->hasPermission($permission)) {
-                return $next($request);
+            // Support comma-separated permission strings, e.g. "user.manage,role.manage"
+            foreach (array_filter(array_map('trim', explode(',', $permission))) as $perm) {
+                if ($user->hasPermission($perm)) {
+                    return $next($request);
+                }
             }
         }
 

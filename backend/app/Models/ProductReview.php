@@ -49,6 +49,6 @@ class ProductReview extends Model
 
     public function images(): HasMany
     {
-        return $this->hasMany(ReviewImage::class);
+        return $this->hasMany(ReviewImage::class, 'review_id');
     }
 }

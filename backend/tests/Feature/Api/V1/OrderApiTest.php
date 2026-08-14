@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1;
 
 use App\Models\CustomerAddress;
 use App\Models\CustomerProfile;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\RoleAndPermissionSeeder;
@@ -83,6 +84,38 @@ class OrderApiTest extends TestCase
             'items' => [],
         ]);
 
-        $response->assertStatus(401);
+                $response->assertStatus(401);
+    }
+
+    public function test_customer_can_view_order_by_order_number(): void
+    {
+        $customer = $this->actingAsCustomer();
+        $address = CustomerAddress::factory()->create([
+            'customer_profile_id' => $customer->customerProfile->id,
+        ]);
+        $order = Order::factory()->create([
+            'customer_id' => $customer->customerProfile->id,
+            'address_id' => $address->id,
+        ]);
+        $product = Product::factory()->create();
+        $order->items()->create([
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'sku' => $product->sku,
+            'quantity' => 2,
+            'unit_id' => $product->unit_id,
+            'unit_price' => 50,
+            'discount' => 0,
+            'total' => 100,
+        ]);
+
+        $response = $this->actingAs($customer)->get("/api/v1/orders/{$order->order_number}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.order_number', $order->order_number)
+            ->assertJsonPath('data.delivery_address.id', $address->id)
+            ->assertJsonPath('data.items.0.product.id', $product->id)
+            ->assertJsonPath('data.items.0.product.slug', $product->slug)
+            ->assertJsonPath('data.items.0.subtotal', 100);
     }
 }

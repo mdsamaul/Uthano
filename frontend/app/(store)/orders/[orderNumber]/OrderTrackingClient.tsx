@@ -135,7 +135,7 @@ export function OrderTrackingClient() {
               </p>
               <p>{order.delivery_address.phone}</p>
               <p>
-                {order.delivery_address.address}, {order.delivery_address.area},
+                {order.delivery_address.address_line}, {order.delivery_address.area},
                 {order.delivery_address.upazila}, {order.delivery_address.district},
                 {order.delivery_address.division}
               </p>

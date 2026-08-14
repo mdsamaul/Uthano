@@ -24,7 +24,7 @@ class CouponRequest extends FormRequest
     {
         return [
             'code' => ['required', 'string', 'max:50', 'unique:coupons,code,' . $this->route('id')],
-            'type' => ['required', Rule::in(['PERCENTAGE', 'FIXED'])],
+            'type' => ['required', Rule::in(['PERCENTAGE', 'FIXED', 'percent', 'percentage', 'fixed'])],
             'value' => ['required', 'numeric', 'min:0'],
             'minimum_order_amount' => ['nullable', 'numeric', 'min:0'],
             'maximum_discount' => ['nullable', 'numeric', 'min:0'],

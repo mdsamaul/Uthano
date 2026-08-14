@@ -13,7 +13,7 @@ class ProductRequest extends FormRequest
 
     public function rules(): array
     {
-        $productId = $this->route('product')?->id;
+                $productId = $this->route('id');
 
         return [
             'category_id' => ['required', 'exists:categories,id'],

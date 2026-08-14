@@ -16,21 +16,100 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RoleAndPermissionSeeder::class);
+        // ============================================
+        // SUPER ADMIN
+        // ============================================
+        User::updateOrCreate(
+            ['email' => 'superadmin@uthano.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => Hash::make('password'),
+                'phone' => '01700000999',
+                'is_active' => true,
+                'role' => 'superadmin',
+            ]
+        );
 
-        // Create admin user
-        $admin = User::updateOrCreate(
+        // ============================================
+        // ADMIN USERS
+        // ============================================
+
+        // Create main admin user
+        User::updateOrCreate(
             ['email' => 'admin@uthano.com'],
             [
                 'name' => 'UTHANO Admin',
                 'password' => Hash::make('password'),
                 'phone' => '01700000000',
                 'is_active' => true,
+                'role' => 'admin',
             ]
         );
-        $admin->assignRole('admin');
 
-        // Create demo customer
+        // Admin A - Product Manager
+        User::updateOrCreate(
+            ['email' => 'admin-a@uthano.com'],
+            [
+                'name' => 'Admin A - Product Manager',
+                'password' => Hash::make('password'),
+                'phone' => '01700000101',
+                'is_active' => true,
+                'role' => 'admin',
+            ]
+        );
+
+        // Admin B - Order Manager
+        User::updateOrCreate(
+            ['email' => 'admin-b@uthano.com'],
+            [
+                'name' => 'Admin B - Order Manager',
+                'password' => Hash::make('password'),
+                'phone' => '01700000102',
+                'is_active' => true,
+                'role' => 'admin',
+            ]
+        );
+
+        // Admin C - Delivery Manager
+        User::updateOrCreate(
+            ['email' => 'admin-c@uthano.com'],
+            [
+                'name' => 'Admin C - Delivery Manager',
+                'password' => Hash::make('password'),
+                'phone' => '01700000103',
+                'is_active' => true,
+                'role' => 'admin',
+            ]
+        );
+
+        // Staff user
+        User::updateOrCreate(
+            ['email' => 'staff@uthano.com'],
+            [
+                'name' => 'UTHANO Staff',
+                'password' => Hash::make('password'),
+                'phone' => '01700000004',
+                'is_active' => true,
+                'role' => 'staff',
+            ]
+        );
+
+        // Warehouse manager
+        User::updateOrCreate(
+            ['email' => 'warehouse@uthano.com'],
+            [
+                'name' => 'Warehouse Manager',
+                'password' => Hash::make('password'),
+                'phone' => '01700000005',
+                'is_active' => true,
+                'role' => 'warehouse_manager',
+            ]
+        );
+
+        // ============================================
+        // CUSTOMER
+        // ============================================
+
         $customer = User::updateOrCreate(
             ['email' => 'customer@uthano.com'],
             [
@@ -38,9 +117,9 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'phone' => '01700000001',
                 'is_active' => true,
+                'role' => 'customer',
             ]
         );
-        $customer->assignRole('customer');
 
         // Create customer profile
         \App\Models\CustomerProfile::updateOrCreate(
@@ -52,7 +131,10 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Create demo farmer
+        // ============================================
+        // FARMER
+        // ============================================
+
         $farmerUser = User::updateOrCreate(
             ['email' => 'farmer@uthano.com'],
             [
@@ -60,9 +142,9 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'phone' => '01700000002',
                 'is_active' => true,
+                'role' => 'farmer',
             ]
         );
-        $farmerUser->assignRole('farmer');
 
         $farmer = \App\Models\Farmer::updateOrCreate(
             ['farmer_code' => 'FRM-DEMO-001'],

@@ -9,3 +9,8 @@ export { farmerService } from './farmer.service';
 export { deliveryService } from './delivery.service';
 export { traceabilityService } from './traceability.service';
 export { adminService } from './admin.service';
+export { roleService } from './role.service';
+export { permissionService } from './permission.service';
+export { couponService } from './coupon.service';
+export { auditService } from './audit.service';
+export { dashboardService } from './dashboard.service';

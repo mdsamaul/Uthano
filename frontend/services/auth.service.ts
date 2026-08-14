@@ -23,6 +23,15 @@ export const authService = {
     return apiGet<User>('/auth/me');
   },
 
+  // OTP (phone) authentication
+  async requestOtp(phone: string): Promise<{ phone: string; expires_in: number; dev_code?: string | null }> {
+    return apiPost<{ phone: string; expires_in: number; dev_code?: string | null }>('/auth/otp/request', { phone });
+  },
+
+  async verifyOtp(phone: string, otp: string): Promise<AuthResponse> {
+    return apiPost<AuthResponse>('/auth/otp/verify', { phone, otp });
+  },
+
   async forgotPassword(email: string): Promise<void> {
     await apiPost<void>('/auth/forgot-password', { email });
   },

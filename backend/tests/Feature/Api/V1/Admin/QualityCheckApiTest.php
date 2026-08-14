@@ -20,10 +20,15 @@ class QualityCheckApiTest extends TestCase
         $this->seed(RoleAndPermissionSeeder::class);
     }
 
-    private function actingAsAdmin(): User
+        private function actingAsAdmin(): User
     {
         $user = User::factory()->create();
         $user->assignRole('admin');
+        // RBAC: admins are permission-based. Grant the quality-check-module
+        // permissions this CRUD suite exercises.
+        $user->givePermissionTo([
+            'quality-check.view', 'quality-check.manage',
+        ]);
 
         return $user;
     }

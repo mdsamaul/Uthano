@@ -15,7 +15,8 @@ class RoleAndPermissionSeeder extends Seeder
         // ============================================
 
         $roles = [
-            ['name' => 'Admin', 'slug' => 'admin', 'description' => 'Full system access'],
+            ['name' => 'Super Admin', 'slug' => 'superadmin', 'description' => 'Unrestricted access. Can manage users, roles and grant page-level access to everyone.'],
+            ['name' => 'Admin', 'slug' => 'admin', 'description' => 'Full system access (granted via permissions)'],
             ['name' => 'Customer', 'slug' => 'customer', 'description' => 'E-commerce customer'],
             ['name' => 'Farmer', 'slug' => 'farmer', 'description' => 'Farmer who supplies products'],
             ['name' => 'Warehouse Manager', 'slug' => 'warehouse_manager', 'description' => 'Manages warehouse and inventory'],
@@ -38,9 +39,19 @@ class RoleAndPermissionSeeder extends Seeder
             ['name' => 'Update Products', 'slug' => 'product.update', 'group' => 'product'],
             ['name' => 'Delete Products', 'slug' => 'product.delete', 'group' => 'product'],
 
+            // Category
+            ['name' => 'View Categories', 'slug' => 'category.view', 'group' => 'category'],
+            ['name' => 'Create Categories', 'slug' => 'category.create', 'group' => 'category'],
+            ['name' => 'Update Categories', 'slug' => 'category.update', 'group' => 'category'],
+            ['name' => 'Delete Categories', 'slug' => 'category.delete', 'group' => 'category'],
+
+            // Customer
+            ['name' => 'View Customers', 'slug' => 'customer.view', 'group' => 'customer'],
+
             // Order
             ['name' => 'View Orders', 'slug' => 'order.view', 'group' => 'order'],
             ['name' => 'Update Orders', 'slug' => 'order.update', 'group' => 'order'],
+            ['name' => 'Update Order Status', 'slug' => 'order.status.update', 'group' => 'order'],
             ['name' => 'Cancel Orders', 'slug' => 'order.cancel', 'group' => 'order'],
 
             // Farmer
@@ -55,29 +66,68 @@ class RoleAndPermissionSeeder extends Seeder
             ['name' => 'Update Farms', 'slug' => 'farm.update', 'group' => 'farm'],
             ['name' => 'Delete Farms', 'slug' => 'farm.delete', 'group' => 'farm'],
 
+            // Harvest
+            ['name' => 'View Harvests', 'slug' => 'harvest.view', 'group' => 'harvest'],
+            ['name' => 'Manage Harvests', 'slug' => 'harvest.manage', 'group' => 'harvest'],
+
+            // Batch
+            ['name' => 'View Batches', 'slug' => 'batch.view', 'group' => 'batch'],
+            ['name' => 'Manage Batches', 'slug' => 'batch.manage', 'group' => 'batch'],
+
             // Inventory
             ['name' => 'View Inventory', 'slug' => 'inventory.view', 'group' => 'inventory'],
             ['name' => 'Adjust Inventory', 'slug' => 'inventory.adjust', 'group' => 'inventory'],
+
+            // Warehouse
+            ['name' => 'View Warehouses', 'slug' => 'warehouse.view', 'group' => 'warehouse'],
+            ['name' => 'Manage Warehouses', 'slug' => 'warehouse.manage', 'group' => 'warehouse'],
 
             // Delivery
             ['name' => 'View Deliveries', 'slug' => 'delivery.view', 'group' => 'delivery'],
             ['name' => 'Assign Deliveries', 'slug' => 'delivery.assign', 'group' => 'delivery'],
             ['name' => 'Update Deliveries', 'slug' => 'delivery.update', 'group' => 'delivery'],
 
-            // Warehouse
-            ['name' => 'View Warehouses', 'slug' => 'warehouse.view', 'group' => 'warehouse'],
-            ['name' => 'Manage Warehouses', 'slug' => 'warehouse.manage', 'group' => 'warehouse'],
-
-            // Harvest
-            ['name' => 'View Harvests', 'slug' => 'harvest.view', 'group' => 'harvest'],
-            ['name' => 'Manage Harvests', 'slug' => 'harvest.manage', 'group' => 'harvest'],
-
             // Sourcing
             ['name' => 'View Sourcing', 'slug' => 'sourcing.view', 'group' => 'sourcing'],
             ['name' => 'Manage Sourcing', 'slug' => 'sourcing.manage', 'group' => 'sourcing'],
 
+            // Quality Check
+            ['name' => 'View Quality Checks', 'slug' => 'quality-check.view', 'group' => 'quality-check'],
+            ['name' => 'Manage Quality Checks', 'slug' => 'quality-check.manage', 'group' => 'quality-check'],
+
+            // Coupon
+            ['name' => 'View Coupons', 'slug' => 'coupon.view', 'group' => 'coupon'],
+            ['name' => 'Manage Coupons', 'slug' => 'coupon.manage', 'group' => 'coupon'],
+
+            // Packaging
+            ['name' => 'View Packaging', 'slug' => 'packaging.view', 'group' => 'packaging'],
+            ['name' => 'Manage Packaging', 'slug' => 'packaging.manage', 'group' => 'packaging'],
+
+            // Product Review
+            ['name' => 'View Reviews', 'slug' => 'review.view', 'group' => 'review'],
+            ['name' => 'Manage Reviews', 'slug' => 'review.manage', 'group' => 'review'],
+
+            // Audit
+            ['name' => 'View Audit Logs', 'slug' => 'audit.view', 'group' => 'audit'],
+
+            // Reports
+            ['name' => 'View Reports', 'slug' => 'report.view', 'group' => 'report'],
+            ['name' => 'Export Reports', 'slug' => 'report.export', 'group' => 'report'],
+
+            // Settings
+            ['name' => 'View Settings', 'slug' => 'settings.view', 'group' => 'settings'],
+            ['name' => 'Update Settings', 'slug' => 'settings.update', 'group' => 'settings'],
+
             // Dashboard
             ['name' => 'View Dashboard', 'slug' => 'dashboard.view', 'group' => 'dashboard'],
+
+            // User & role management (superadmin)
+            ['name' => 'View Users', 'slug' => 'user.view', 'group' => 'permission'],
+            ['name' => 'Manage Users', 'slug' => 'user.manage', 'group' => 'permission'],
+            ['name' => 'View Roles', 'slug' => 'role.view', 'group' => 'permission'],
+            ['name' => 'Manage Roles', 'slug' => 'role.manage', 'group' => 'permission'],
+            ['name' => 'View Permissions', 'slug' => 'permission.view', 'group' => 'permission'],
+            ['name' => 'Manage Permissions', 'slug' => 'permission.manage', 'group' => 'permission'],
         ];
 
         foreach ($permissions as $permission) {
@@ -88,26 +138,40 @@ class RoleAndPermissionSeeder extends Seeder
         // ASSIGN PERMISSIONS TO ROLES
         // ============================================
 
+        $superAdmin = Role::where('slug', 'superadmin')->first();
         $admin = Role::where('slug', 'admin')->first();
         $staff = Role::where('slug', 'staff')->first();
         $warehouseManager = Role::where('slug', 'warehouse_manager')->first();
         $deliveryAgent = Role::where('slug', 'delivery_agent')->first();
 
-        // Admin gets all permissions
-        $admin->permissions()->sync(Permission::pluck('id'));
+        // Super Admin gets all permissions (full bypass)
+        $superAdmin->permissions()->sync(Permission::pluck('id'));
+
+        // Admin role is permission-based: it only grants dashboard access by default.
+        // Individual admins receive their real permissions via direct assignment
+        // or through specialized roles (managed by the superadmin).
+        $admin->permissions()->sync(
+            Permission::where('slug', 'dashboard.view')->pluck('id')
+        );
 
         // Staff gets operational permissions
         $staff->permissions()->sync(
             Permission::whereIn('slug', [
                 'product.view', 'product.create', 'product.update',
+                'category.view', 'category.create', 'category.update',
+                'customer.view',
                 'order.view', 'order.update', 'order.cancel',
                 'farmer.view', 'farmer.create', 'farmer.update',
                 'farm.view', 'farm.create', 'farm.update',
-                'inventory.view',
-                'delivery.view', 'delivery.assign', 'delivery.update',
-                'warehouse.view',
                 'harvest.view', 'harvest.manage',
+                'batch.view',
+                'inventory.view', 'inventory.adjust',
+                'warehouse.view',
+                'delivery.view', 'delivery.assign', 'delivery.update',
                 'sourcing.view', 'sourcing.manage',
+                'quality-check.view',
+                'coupon.view',
+                'review.view',
                 'dashboard.view',
             ])->pluck('id')
         );
@@ -118,8 +182,10 @@ class RoleAndPermissionSeeder extends Seeder
                 'inventory.view', 'inventory.adjust',
                 'warehouse.view', 'warehouse.manage',
                 'harvest.view',
+                'batch.view',
                 'sourcing.view',
                 'delivery.view',
+                'quality-check.view',
                 'product.view',
                 'order.view',
                 'dashboard.view',

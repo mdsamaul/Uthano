@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('quality_checks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained();
-            $table->foreignId('harvest_batch_id')->constrained();
+            $table->foreignId('harvest_batch_id')->nullable()->constrained();
             $table->foreignId('warehouse_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('checked_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('checked_at');
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('accepted_quantity', 12, 2)->default(0);
             $table->decimal('rejected_quantity', 12, 2)->default(0);
             $table->string('grade')->nullable();
-            $table->enum('status', ['PASSED', 'PARTIAL', 'FAILED'])->default('PASSED');
+            $table->enum('status', ['PENDING', 'APPROVED', 'REJECTED'])->default('PENDING');
             $table->text('notes')->nullable();
             $table->timestamps();
 
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained('customer_profiles');
             $table->foreignId('product_id')->constrained();
-            $table->foreignId('order_id')->constrained();
+            $table->foreignId('order_id')->nullable()->constrained();
             $table->foreignId('order_item_id')->nullable()->constrained()->nullOnDelete();
             $table->tinyInteger('rating')->unsigned();
             $table->string('title')->nullable();

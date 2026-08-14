@@ -20,11 +20,32 @@ class ProductApiTest extends TestCase
         $this->seed(RoleAndPermissionSeeder::class);
     }
 
-    private function actingAsAdmin(): User
+        private function actingAsAdmin(): User
     {
         $admin = User::factory()->create();
         $admin->assignRole('admin');
+        // RBAC: admins are permission-based. Grant the product-module
+        // permissions this CRUD suite exercises (RBAC denial is covered
+        // separately in AccessControlTest).
+        $admin->givePermissionTo([
+            'product.view', 'product.create', 'product.update', 'product.delete',
+        ]);
+
         return $admin;
+    }
+
+    public function test_admin_can_list_units_for_product_form(): void
+    {
+        Unit::factory()->create(['name' => 'Kilogram', 'symbol' => 'kg']);
+        Unit::factory()->create(['name' => 'Piece', 'symbol' => 'pc']);
+
+        $admin = $this->actingAsAdmin();
+
+        $this->actingAs($admin)
+            ->getJson('/api/v1/admin/units')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonStructure(['data' => [['id', 'name', 'symbol']]]);
     }
 
     public function test_public_can_list_products(): void
@@ -38,7 +59,7 @@ class ProductApiTest extends TestCase
                 'success' => true,
                 'message' => 'Products fetched successfully',
             ])
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data.items');
     }
 
     public function test_public_can_view_single_product(): void
@@ -143,6 +164,35 @@ class ProductApiTest extends TestCase
             'status' => 'ACTIVE',
         ]);
 
-        $response->assertStatus(401);
+                $response->assertStatus(401);
+    }
+
+    public function test_admin_can_update_product_keeping_own_slug_and_sku(): void
+    {
+        $admin = $this->actingAsAdmin();
+        $product = Product::factory()->create([
+            'slug' => 'keep-my-slug',
+            'sku' => 'KEEP-SKU-001',
+        ]);
+
+        $response = $this->actingAs($admin)->put("/api/v1/admin/products/{$product->id}", [
+            'category_id' => $product->category_id,
+            'unit_id' => $product->unit_id,
+            'name' => 'Same Name',
+            'slug' => 'keep-my-slug',
+            'sku' => 'KEEP-SKU-001',
+            'product_type' => 'FRESH',
+            'base_price' => 150,
+            'selling_price' => 180,
+            'cost_price' => 100,
+            'minimum_order_quantity' => 1,
+            'status' => 'ACTIVE',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.slug', 'keep-my-slug')
+            ->assertJsonPath('data.sku', 'KEEP-SKU-001');
+
+        $this->assertDatabaseHas('products', ['id' => $product->id, 'slug' => 'keep-my-slug', 'sku' => 'KEEP-SKU-001']);
     }
 }

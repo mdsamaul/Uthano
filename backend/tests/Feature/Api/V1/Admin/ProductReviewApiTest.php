@@ -20,10 +20,13 @@ class ProductReviewApiTest extends TestCase
         $this->seed(RoleAndPermissionSeeder::class);
     }
 
-    private function actingAsAdmin(): User
+        private function actingAsAdmin(): User
     {
         $user = User::factory()->create();
         $user->assignRole('admin');
+        // RBAC: admins are permission-based. Grant the review-module
+        // permissions this CRUD suite exercises.
+        $user->givePermissionTo(['review.view', 'review.manage']);
 
         return $user;
     }

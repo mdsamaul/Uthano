@@ -14,6 +14,45 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
+    public function index(Request $request): JsonResponse
+    {
+        $query = CustomerProfile::query()->withCount('orders');
+
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'like', "%{$search}%")
+                    ->orWhere('customer_code', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$search}%"));
+            });
+        }
+
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $customers = $query->orderByDesc('created_at')->paginate($request->get('per_page', 20));
+
+        return ApiResponse::paginated(
+            'Customers fetched successfully',
+            CustomerProfileResource::collection($customers),
+            [
+                'current_page' => $customers->currentPage(),
+                'per_page' => $customers->perPage(),
+                'total' => $customers->total(),
+                'last_page' => $customers->lastPage(),
+            ]
+        );
+    }
+
+    public function show(Request $request, int $id): JsonResponse
+    {
+        $profile = CustomerProfile::with(['addresses', 'orders'])->findOrFail($id);
+
+        return ApiResponse::success('Customer fetched successfully', new CustomerProfileResource($profile));
+    }
+
     public function profile(Request $request): JsonResponse
     {
         $profile = $request->user()->customerProfile()->with('addresses')->firstOrFail();

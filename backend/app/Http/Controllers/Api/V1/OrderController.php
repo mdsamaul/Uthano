@@ -80,9 +80,19 @@ class OrderController extends Controller
         return ApiResponse::created('Order placed successfully', new OrderResource($order));
     }
 
-    public function show(Request $request, int $id): JsonResponse
+        public function show(Request $request, int|string $id): JsonResponse
     {
-        $order = Order::with(['items', 'address', 'statusHistories', 'delivery', 'payments'])->findOrFail($id);
+        $query = Order::with(['items.product', 'address', 'statusHistories', 'delivery', 'payments']);
+
+        // Admin callers pass the numeric id; customer order-tracking callers
+        // pass the human-readable order_number. Resolve by whichever matches.
+        if (is_numeric($id)) {
+            $query->where('id', $id);
+        } else {
+            $query->where('order_number', $id);
+        }
+
+        $order = $query->firstOrFail();
 
         $this->authorize('view', $order);
 

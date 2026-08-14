@@ -152,9 +152,37 @@ Frontend Axios client ডিফল্টভাবে `http://localhost:8000/api/
 
 | Role | Email | Password |
 |------|-------|----------|
+| **Super Admin** | `superadmin@uthano.com` | `password` |
 | **Admin** | `admin@uthano.com` | `password` |
+| **Staff** | `staff@uthano.com` | `password` |
+| **Warehouse Manager** | `warehouse@uthano.com` | `password` |
 | **Customer** | `customer@uthano.com` | `password` |
 | **Farmer** | `farmer@uthano.com` | `password` |
+
+**সরল রোল সিস্টেম:**
+- `superadmin` - সব্রিদ অ্যাডমিন (সব অ্যাক্সেস)
+- `admin` - অ্যাডমিন (সব CRUD অপারেশন)
+- `staff` - স্টাফ (বেসিক CRUD)
+- `warehouse_manager` - ওয়্যারহাউস ম্যানেজার
+- `customer` - কাস্টমার
+- `farmer` - ফার্মার
+
+---
+
+## 🔐 সরল রোল-ভিত্তিক সিস্টেম
+
+UTHANO এখন সরল রোল-ভিত্তিক অথেনটিকেশন সিস্টেম ব্যবহার করে। কোনো জটিল permission সিস্টেম নেই, শুধুমাত্র সহজ রোল চেকিং:
+
+**রোল এবং অ্যাক্সেস:**
+- `superadmin` - সব অ্যাক্সেস + ইউজার ম্যানেজমেন্ট
+- `admin`, `staff`, `warehouse_manager` - সব CRUD অপারেশন 
+- `customer` - কাস্টমার ফিচার (অর্ডার, প্রোফাইল)
+- `farmer` - ফার্মার পোর্টাল অ্যাক্সেস
+
+**ব্যাকেন্ড মিডেলওয়্যার:**
+- `role:superadmin,admin,staff,warehouse_manager` - অ্যাডমিন রুট রক্ষা
+- `role:farmer` - ফার্মার রুট রক্ষা
+- `auth:sanctum` - লগইন রিকোয়ার্ড
 
 ---
 
@@ -179,13 +207,24 @@ Frontend Axios client ডিফল্টভাবে `http://localhost:8000/api/
 | GET | `/api/v1/orders` | অর্ডার লিস্ট |
 | POST | `/api/v1/orders` | অর্ডার তৈরি |
 
-### Admin (role: admin)
+### Admin (role: superadmin, admin, staff, warehouse_manager)
 | Method | Endpoint | বিবরণ |
 |--------|----------|-------|
 | GET | `/api/v1/admin/dashboard` | ড্যাশবোর্ড |
+| GET | `/api/v1/admin/access/my` | বর্তমান ইউজার রোল |
+| GET | `/api/v1/admin/products` | প্রোডাক্ট লিস্ট |
 | POST | `/api/v1/admin/products` | প্রোডাক্ট তৈরি |
+| PUT | `/api/v1/admin/products/{id}` | প্রোডাক্ট আপডেট |
+| DELETE | `/api/v1/admin/products/{id}` | প্রোডাক্ট ডিলিট |
 | GET | `/api/v1/admin/farmers` | ফার্মার লিস্ট |
 | GET | `/api/v1/admin/inventory` | ইনভেন্টরি |
+
+### Superadmin Only
+| Method | Endpoint | বিবরণ |
+|--------|----------|-------|
+| GET | `/api/v1/admin/users` | ইউজার লিস্ট |
+| POST | `/api/v1/admin/users` | ইউজার তৈরি |
+| PUT | `/api/v1/admin/users/{id}` | ইউজার আপডেট |
 
 ---
 

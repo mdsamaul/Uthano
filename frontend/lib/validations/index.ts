@@ -138,7 +138,7 @@ export const batchSchema = z.object({
 
 export const couponSchema = z.object({
   code: z.string().min(3, 'Coupon code must be at least 3 characters'),
-  type: z.enum(['percentage', 'fixed']),
+    type: z.enum(['PERCENTAGE', 'FIXED']),
   value: z.number().min(0, 'Value must be positive'),
   min_order_amount: z.number().min(0).optional(),
   max_discount: z.number().min(0).optional(),

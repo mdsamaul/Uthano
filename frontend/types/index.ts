@@ -27,7 +27,7 @@ export interface PaginatedData<T> {
 // User & Auth Types
 // ============================================
 
-export type UserRole = 'customer' | 'admin' | 'farmer' | 'delivery_agent';
+export type UserRole = 'customer' | 'admin' | 'farmer' | 'delivery_agent' | 'superadmin' | 'staff' | 'warehouse_manager';
 
 export interface User {
   id: number;
@@ -36,6 +36,7 @@ export interface User {
   phone: string;
   role: UserRole;
   avatar?: string;
+  is_active?: boolean;
   email_verified_at?: string | null;
   created_at: string;
   updated_at: string;
@@ -70,17 +71,21 @@ export interface Product {
   name: string;
   slug: string;
   sku: string;
-  description: string;
+  description?: string;
   short_description?: string;
   category_id: number;
   category?: Category;
   price: number;
+  base_price?: number;
   cost_price?: number;
   discount_price?: number;
   unit: string;
-  min_order_qty: number;
-  max_order_qty: number;
-  images: ProductImage[];
+  unit_id?: number;
+  product_type?: string;
+  min_order_qty?: number;
+  max_order_qty?: number;
+  is_active?: boolean;
+  images?: ProductImage[];
   status: 'active' | 'inactive' | 'draft';
   featured: boolean;
   is_seasonal: boolean;
@@ -129,6 +134,7 @@ export interface Category {
   description?: string;
   image?: string;
   parent_id?: number | null;
+  is_active?: boolean;
   product_count?: number;
   children?: Category[];
   created_at: string;
@@ -334,6 +340,78 @@ export interface CreateOrderData {
 }
 
 // ============================================
+// Admin Order Detail Types (matches OrderResource)
+// ============================================
+
+export interface Unit {
+  id: number;
+  name: string;
+  symbol: string;
+}
+
+export interface AdminOrderItem {
+  id: number;
+  product_id: number;
+  product_name: string;
+  sku: string;
+  quantity: number;
+  unit_price: number;
+  discount: number;
+  total: number;
+  source_batch_id?: number | null;
+}
+
+export interface AdminOrderAddress {
+  id: number;
+  name?: string;
+  phone?: string;
+  district?: string;
+  upazila?: string;
+  address_line?: string;
+}
+
+export interface AdminOrderDelivery {
+  id: number;
+  delivery_code?: string;
+  status?: string;
+  assigned_at?: string | null;
+  delivered_at?: string | null;
+  delivery_fee?: number;
+}
+
+export interface AdminOrderStatusHistory {
+  status: string;
+  notes?: string | null;
+  changed_at?: string | null;
+}
+
+export interface AdminOrder {
+  id: number;
+  order_number: string;
+  customer_id: number;
+  address?: AdminOrderAddress | null;
+  subtotal: number;
+  discount: number;
+  delivery_charge: number;
+  tax?: number | null;
+  total: number;
+  currency?: string;
+  payment_method?: string;
+  payment_status?: string;
+  order_status: string;
+  status?: string;
+  notes?: string | null;
+  items?: AdminOrderItem[];
+  status_histories?: AdminOrderStatusHistory[];
+  delivery?: AdminOrderDelivery | null;
+  placed_at?: string | null;
+  confirmed_at?: string | null;
+  delivered_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+// ============================================
 // Customer & Address Types
 // ============================================
 
@@ -359,6 +437,7 @@ export interface Address {
   upazila: string;
   area: string;
   address_line: string;
+  address?: string;
   postal_code?: string;
   is_default: boolean;
   created_at: string;
@@ -390,7 +469,7 @@ export interface Review {
 export interface Coupon {
   id: number;
   code: string;
-  type: 'percentage' | 'fixed';
+    type: 'PERCENTAGE' | 'FIXED';
   value: number;
   min_order_amount?: number;
   max_discount?: number;
@@ -492,7 +571,7 @@ export interface DashboardStats {
 export interface SalesChartData {
   date: string;
   sales: number;
-  orders: number;
+  orders?: number;
 }
 
 export interface TopProduct {
@@ -548,4 +627,88 @@ export interface WishlistItem {
   product?: Product;
   created_at: string;
   updated_at: string;
+}
+
+// ============================================
+// RBAC / Access Types (admin)
+// ============================================
+
+export interface Permission {
+  id: number;
+  name: string;
+  slug: string;
+  group: string;
+}
+
+export interface Role {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  users_count?: number;
+  permissions?: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+/** Response of GET /admin/access/my — drives frontend permission gating. */
+export interface MyAccess {
+  role: string;
+  roles: string[];
+  is_superadmin: boolean;
+  permissions: string[];
+}
+
+/** Response of GET /admin/access/catalog — roles + permissions grouped by module. */
+export interface AccessCatalog {
+  roles: Role[];
+  permissions: Record<string, Permission[]>;
+}
+
+export interface AdminUserFormValues {
+  name: string;
+  email: string;
+  phone?: string;
+  password?: string;
+  is_active: boolean;
+  roles: string[];
+  permissions: number[];
+}
+
+// ============================================
+// Coupon Types
+// ============================================
+
+export interface Coupon {
+  id: number;
+  code: string;
+    type: 'PERCENTAGE' | 'FIXED';
+  value: number;
+  minimum_order_amount?: number;
+  maximum_discount?: number;
+  start_at?: string | null;
+  end_at?: string | null;
+  usage_limit?: number;
+  per_customer_limit?: number;
+  is_active: boolean;
+  usages_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================
+// Audit Log Types
+// ============================================
+
+export interface AuditLog {
+  id: number;
+  user?: { id: number; name: string; email?: string } | null;
+  action: string;
+  auditable_type?: string;
+  auditable_id?: number;
+  old_values?: Record<string, unknown> | null;
+  new_values?: Record<string, unknown> | null;
+  ip_address?: string;
+  user_agent?: string;
+  created_at: string;
 }

@@ -22,7 +22,15 @@ class CheckRole
             ], 401);
         }
 
-        if (!$user->hasAnyRole($roles)) {
+        // Flatten comma-separated role strings passed via `role:superadmin,admin,staff`
+        $flat = [];
+        foreach ($roles as $role) {
+            foreach (array_filter(array_map('trim', explode(',', $role))) as $r) {
+                $flat[] = $r;
+            }
+        }
+
+        if (!$user->hasAnyRole($flat) && !$user->isSuperAdmin()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Forbidden: insufficient role',

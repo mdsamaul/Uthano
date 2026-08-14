@@ -36,6 +36,8 @@ class ProductResource extends JsonResource
                 'slug' => $this->category->slug,
             ]),
             'unit' => $this->unit?->symbol ?? 'kg',
+            'unit_id' => $this->unit_id,
+            'is_active' => $this->is_active,
             'price' => (float) $this->selling_price,
             'base_price' => (float) $this->base_price,
             'cost_price' => $isAdmin ? (float) $this->cost_price : null,

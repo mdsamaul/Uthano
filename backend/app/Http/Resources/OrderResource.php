@@ -13,13 +13,28 @@ class OrderResource extends JsonResource
             'id' => $this->id,
             'order_number' => $this->order_number,
             'customer_id' => $this->customer_id,
-            'address' => $this->whenLoaded('address', fn () => [
+                        'address' => $this->whenLoaded('address', fn () => [
                 'id' => $this->address->id,
                 'name' => $this->address->name,
                 'phone' => $this->address->phone,
                 'district' => $this->address->district,
                 'upazila' => $this->address->upazila,
                 'address_line' => $this->address->address_line,
+            ]),
+            // Customer-facing address (full Bangladesh address shape). Kept in
+            // addition to `address` so the admin OrderResource contract above
+            // stays intact for the admin order-detail page.
+            'delivery_address' => $this->whenLoaded('address', fn () => [
+                'id' => $this->address->id,
+                'name' => $this->address->name,
+                'phone' => $this->address->phone,
+                'division' => $this->address->division,
+                'district' => $this->address->district,
+                'upazila' => $this->address->upazila,
+                'area' => $this->address->area,
+                'address_line' => $this->address->address_line,
+                'postal_code' => $this->address->postal_code,
+                'is_default' => $this->address->is_default,
             ]),
             'subtotal' => (float) $this->subtotal,
             'discount' => (float) $this->discount,
@@ -30,16 +45,23 @@ class OrderResource extends JsonResource
             'payment_method' => $this->payment_method,
             'payment_status' => $this->payment_status,
             'order_status' => $this->order_status,
+            'status' => $this->order_status,
             'notes' => $this->notes,
-            'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($item) => [
+                        'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($item) => [
                 'id' => $item->id,
                 'product_id' => $item->product_id,
+                                'product' => $item->relationLoaded('product') ? [
+                    'id' => $item->product->id,
+                    'slug' => $item->product->slug,
+                    'name' => $item->product->name,
+                ] : null,
                 'product_name' => $item->product_name,
                 'sku' => $item->sku,
                 'quantity' => (float) $item->quantity,
                 'unit_price' => (float) $item->unit_price,
                 'discount' => (float) $item->discount,
                 'total' => (float) $item->total,
+                'subtotal' => (float) ($item->unit_price * $item->quantity),
                 'source_batch_id' => $item->source_batch_id,
             ])),
             'status_histories' => $this->whenLoaded('statusHistories', fn () => $this->statusHistories->map(fn ($h) => [

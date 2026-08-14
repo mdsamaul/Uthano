@@ -3,17 +3,17 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useNavigate } from 'next/navigation';
-import { useToast } from '@/components/ui/use-toast';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { Address } from '@/types';
 import { customerService } from '@/services/customer.service';
-import { useAuth } from '@/hooks/use-auth';
-import { useUIStore } from '@/store';
 import { addressSchema } from '@/lib/validations';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+
+type AddressFormValues = z.infer<typeof addressSchema>;
 
 interface AddressFormProps {
   isEditing?: boolean;
@@ -21,78 +21,64 @@ interface AddressFormProps {
   onSuccess?: (address: Address) => void;
 }
 
-export function AddressForm({ 
-  isEditing = false, 
+export function AddressForm({
+  isEditing = false,
   initialAddress,
-  onSuccess 
+  onSuccess,
 }: AddressFormProps) {
-  const navigate = useNavigate();
-  const { showToast } = useToast();
-  const { user } = useAuth();
-
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const formSchema = isEditing 
-    ? addressSchema.partial() 
-    : addressSchema;
+  const formSchema = isEditing ? addressSchema.partial() : addressSchema;
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting: formIsSubmitting },
     reset,
-  } = useForm<z.infer<typeof addressSchema>>({
-    resolver: async (data: any) => {
-      const issues: any = {};
-      for (const [key, value] of Object.entries(data)) {
-        if (value && typeof value === 'string' && value.length < 2) {
-          issues[key] = { message: 'This field is required' };
+  } = useForm<AddressFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: initialAddress
+      ? {
+          name: initialAddress.name,
+          phone: initialAddress.phone,
+          division: initialAddress.division,
+          district: initialAddress.district,
+          upazila: initialAddress.upazila,
+          area: initialAddress.area,
+          address_line: initialAddress.address_line,
+          postal_code: initialAddress.postal_code,
+          is_default: initialAddress.is_default,
         }
-      }
-      return issues;
-    },
+      : { is_default: false },
   });
 
-  const [division, setDivision] = useState<string>('');
-  const [district, setDistrict] = useState<string>('');
-  const [upazila, setUpazila] = useState<string>('');
-  const [area, setArea] = useState<string>('');
-
-  const onSubmit = async (data: z.infer<typeof addressSchema>) => {
+  const onSubmit = async (data: AddressFormValues) => {
     setIsSubmitting(true);
-    
-    try {
-      const addressData = {
-        ...data,
-        customer_id: user?.id,
-      };
 
+    try {
       let address: Address;
-      
+
       if (isEditing && initialAddress) {
         address = await customerService.updateAddress(initialAddress.id, data);
       } else {
         address = await customerService.createAddress(data);
       }
 
-      showToast(isEditing ? 'Address updated successfully!' : 'Address added successfully!');
-      
+      alert(isEditing ? 'Address updated successfully!' : 'Address added successfully!');
+
       if (onSuccess) {
         onSuccess(address);
       }
-      
+
       reset();
       setIsSubmitting(false);
-      
+
       if (!isEditing) {
-        navigate('/');
+        router.push('/');
       }
     } catch (err) {
-      showToast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'Failed to save address',
-        variant: 'destructive',
-      });
+      alert(err instanceof Error ? err.message : 'Failed to save address');
       setIsSubmitting(false);
     }
   };
@@ -102,7 +88,7 @@ export function AddressForm({
       <h2 className="text-xl font-semibold mb-4">
         {isEditing ? 'Edit Address' : 'Add New Address'}
       </h2>
-      
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label htmlFor="name" className="mb-1 block text-sm font-medium">
@@ -134,10 +120,7 @@ export function AddressForm({
             <label htmlFor="division" className="mb-1 block text-sm font-medium">
               Division
             </label>
-            <Select
-              id="division"
-              {...register('division')}
-            >
+            <Select id="division" {...register('division')}>
               <option value="">Select division</option>
               <option value="Dhaka">Dhaka</option>
               <option value="Chittagong">Chittagong</option>
@@ -154,10 +137,7 @@ export function AddressForm({
             <label htmlFor="district" className="mb-1 block text-sm font-medium">
               District
             </label>
-            <Select
-              id="district"
-              {...register('district')}
-            >
+            <Select id="district" {...register('district')}>
               <option value="">Select district</option>
               <option value="Dhaka">Dhaka</option>
               <option value="Chittagong">Chittagong</option>
@@ -179,10 +159,7 @@ export function AddressForm({
             <label htmlFor="upazila" className="mb-1 block text-sm font-medium">
               Upazila
             </label>
-            <Select
-              id="upazila"
-              {...register('upazila')}
-            >
+            <Select id="upazila" {...register('upazila')}>
               <option value="">Select upazila</option>
               <option value="Dhamrai">Dhamrai</option>
               <option value="Savar">Savar</option>
@@ -205,13 +182,13 @@ export function AddressForm({
         </div>
 
         <div>
-          <label htmlFor="address" className="mb-1 block text-sm font-medium">
+          <label htmlFor="address_line" className="mb-1 block text-sm font-medium">
             Full Address
           </label>
           <Input
-            id="address"
+            id="address_line"
             placeholder="Street address, house number, etc."
-{...register('address_line')}
+            {...register('address_line')}
             error={errors.address_line?.message}
           />
         </div>
@@ -230,16 +207,20 @@ export function AddressForm({
 
         <div className="flex items-center justify-between">
           <Button type="submit" disabled={isSubmitting || formIsSubmitting}>
-            {isSubmitting || formIsSubmitting ? 'Saving...' : (isEditing ? 'Update Address' : 'Save Address')}
+            {isSubmitting || formIsSubmitting
+              ? 'Saving...'
+              : isEditing
+                ? 'Update Address'
+                : 'Save Address'}
           </Button>
-          
+
           {isEditing && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
                 reset();
-                navigate('/');
+                router.push('/');
               }}
             >
               Cancel

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductReviewRequest;
 use App\Http\Resources\ProductReviewResource;
+use App\Models\CustomerProfile;
 use App\Models\ProductReview;
 use App\Services\ProductReviewService;
 use App\Support\ApiResponse;
@@ -63,9 +64,21 @@ class ProductReviewController extends Controller
 
     public function store(ProductReviewRequest $request): JsonResponse
     {
+        $customerProfile = $request->user()->customerProfile;
+
+        if (!$customerProfile) {
+            $customerProfile = CustomerProfile::create([
+                'user_id' => $request->user()->id,
+                'customer_code' => 'CUS-' . strtoupper(uniqid()),
+                'full_name' => $request->user()->name,
+                'phone' => $request->user()->phone,
+                'status' => 'ACTIVE',
+            ]);
+        }
+
         $review = $this->productReviewService->createReview(
             $request->validated(),
-            $request->user()->customerProfile->id
+            $customerProfile->id
         );
 
         return ApiResponse::created('Product review created successfully', new ProductReviewResource($review->load(['customer', 'product', 'order', 'images'])));
