@@ -154,6 +154,9 @@ Frontend Axios client ডিফল্টভাবে `http://localhost:8000/api/
 |------|-------|----------|
 | **Super Admin** | `superadmin@uthano.com` | `password` |
 | **Admin** | `admin@uthano.com` | `password` |
+| **Admin A (Product Manager)** | `admin-a@uthano.com` | `password` |
+| **Admin B (Order Manager)** | `admin-b@uthano.com` | `password` |
+| **Admin C (Delivery Manager)** | `admin-c@uthano.com` | `password` |
 | **Staff** | `staff@uthano.com` | `password` |
 | **Warehouse Manager** | `warehouse@uthano.com` | `password` |
 | **Customer** | `customer@uthano.com` | `password` |
@@ -166,6 +169,56 @@ Frontend Axios client ডিফল্টভাবে `http://localhost:8000/api/
 - `warehouse_manager` - ওয়্যারহাউস ম্যানেজার
 - `customer` - কাস্টমার
 - `farmer` - ফার্মার
+
+---
+
+## 🗄️ Data Seeder (ডেমো ডেটা)
+
+`php artisan migrate:fresh --seed` চালালে **DatabaseSeeder** সব ডেমো ডেটা স্বয়ংক্রিয়ভাবে তৈরি করে (RoleAndPermissionSeeder ও অটো-রান হয়)।
+
+### Seeder ফাইলসমূহ
+
+| ফাইল | কাজ |
+|------|-----|
+| `backend/database/seeders/DatabaseSeeder.php` | মূল seeder — সব ডেমো ডেটা |
+| `backend/database/seeders/RoleAndPermissionSeeder.php` | Role + Permission সিড করে |
+
+### Seeder যা তৈরি করে
+
+- **৯টি ডেমো ইউজার** — superadmin, admin (৪টি), staff, warehouse_manager, customer, farmer
+- **Customer Profile + Farmer + Farm** (Rahim Ahmed, Rahim Agro Farm)
+- **Unit** — kg, pc, dz  |  **Category** — Fruits, Vegetables, Organic
+- **২টি প্রোডাক্ট** — Fresh Mango, Fresh Guava
+- **১টি Warehouse** — Jhenaidah Collection Center
+- **Harvest + Harvest Batch + Inventory Item + Sourcing Record**
+- **Delivery Zone** — Jhenaidah Sadar
+- **৭টি Role + ৫৪টি Permission**
+
+### Seeder চালানো / পুনরায় জেনারেট
+
+```bash
+# সব টেবিল নতুন করে + seeder চালান
+php artisan migrate:fresh --seed
+
+# শুধু seeder (DatabaseSeeder)
+php artisan db:seed
+
+# নির্দিষ্ট seeder
+php artisan db:seed --class=RoleAndPermissionSeeder
+```
+
+### নতুন Seeder তৈরি করার নিয়ম
+
+```bash
+# 1. নতুন seeder ফাইল তৈরি করুন
+php artisan make:seeder ProductSeeder
+
+# 2. `database/seeders/DatabaseSeeder.php`-এর run() মেথডে নিবন্ধন করুন:
+#    $this->call(ProductSeeder::class);
+
+# 3. ডেটা সিড করার জন্য updateOrCreate() ব্যাবহার করুন (রিপিট সেফ):
+#    Model::updateOrCreate(['unique_field' => 'value'], ['col' => 'data']);
+```
 
 ---
 

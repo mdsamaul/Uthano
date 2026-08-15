@@ -2,11 +2,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Define protected routes that require authentication
+// Matches /admin, /superadmin, /staff, /warehouse_manager, /farmer, /customer, /delivery_agent, /profile
 const protectedRoutes = [
-  /^\/admin(\/|$)/,
-  /^\/customer(\/|$)/,
-  /^\/staff(\/|$)/,
-  /^\/profile(\/|$)/,
+  /^\/(admin|superadmin|staff|warehouse_manager|farmer|delivery_agent|delivery|customer|profile)(\/|$)/,
 ];
 
 // Define public routes that don't require authentication

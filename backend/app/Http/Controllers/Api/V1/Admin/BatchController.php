@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\HarvestBatchRequest;
 use App\Models\HarvestBatch;
+use App\Models\Harvest;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -66,7 +68,30 @@ class BatchController extends Controller
                 'total' => $batches->total(),
                 'last_page' => $batches->lastPage(),
             ]
-        );
+                );
+    }
+
+    public function store(HarvestBatchRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+
+        // Auto-generate batch_code if not provided
+        if (empty($data['batch_code'])) {
+            $harvest = Harvest::findOrFail($data['harvest_id']);
+            $count = HarvestBatch::where('harvest_id', $data['harvest_id'])->count() + 1;
+            $data['batch_code'] = 'BAT-' . $harvest->harvest_code . '-' . str_pad((string) $count, 3, '0', STR_PAD_LEFT);
+        }
+
+        // Set remaining_quantity equal to quantity if not explicitly provided
+        if (!isset($data['remaining_quantity'])) {
+            $data['remaining_quantity'] = $data['quantity'];
+        }
+
+        $batch = HarvestBatch::create($data);
+
+        $batch->load(['harvest.farm.farmer', 'product', 'unit']);
+
+        return ApiResponse::created('Batch created successfully', $batch);
     }
 
     public function show(int $id): JsonResponse

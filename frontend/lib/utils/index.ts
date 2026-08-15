@@ -122,6 +122,25 @@ export function buildQueryString(params: Record<string, string | number | boolea
 }
 
 // ============================================
+// Image URL Helpers
+// ============================================
+
+/**
+ * Resolve backend file URLs (e.g. `/storage/products/xyz.jpg`) to a fully
+ * qualified URL served from the API origin, so images render correctly when
+ * the frontend (Next.js) and backend (Laravel) run on different ports.
+ * Absolute URLs (https://... from a CDN/cloud host) pass through unchanged.
+ */
+export function getImageUrl(url?: string | null): string {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url) || /^data:/i.test(url)) return url;
+
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+  const origin = apiBase.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+  return `${origin}${url.startsWith('/') ? url : `/${url}`}`;
+}
+
+// ============================================
 // Validation Helpers
 // ============================================
 
@@ -190,6 +209,24 @@ export const STOCK_STATUS_COLORS: Record<string, string> = {
   in_stock: 'bg-green-100 text-green-800',
   low_stock: 'bg-yellow-100 text-yellow-800',
   out_of_stock: 'bg-red-100 text-red-800',
+};
+
+// ============================================
+// Product Status Helpers
+// ============================================
+
+export const PRODUCT_STATUS_LABELS: Record<string, string> = {
+  active: 'Active',
+  inactive: 'Inactive',
+  draft: 'Draft',
+  discontinued: 'Discontinued',
+};
+
+export const PRODUCT_STATUS_COLORS: Record<string, string> = {
+  active: 'bg-green-100 text-green-800',
+  inactive: 'bg-yellow-100 text-yellow-800',
+  draft: 'bg-gray-100 text-gray-700',
+  discontinued: 'bg-red-100 text-red-800',
 };
 
 // ============================================

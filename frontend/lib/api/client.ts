@@ -15,6 +15,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1
 
 const TOKEN_KEY = 'uthano_auth_token';
 
+// Cookie used by the edge middleware to authenticate protected routes.
+// Must match the cookie name read in middleware.ts (`request.cookies.get('token')`).
+const TOKEN_COOKIE_KEY = 'token';
+const TOKEN_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+
 // ============================================
 // Error Types
 // ============================================
@@ -95,10 +100,18 @@ export const tokenStorage = {
   set: (token: string): void => {
     if (typeof window === 'undefined') return;
     localStorage.setItem(TOKEN_KEY, token);
+    // Mirror the token into a cookie so that middleware (edge runtime)
+    // can authenticate protected-route requests after client-side login
+    // / register navigation.
+    document.cookie = `${TOKEN_COOKIE_KEY}=${encodeURIComponent(
+      token
+    )}; Path=/; Max-Age=${TOKEN_COOKIE_MAX_AGE}; SameSite=Lax`;
   },
   clear: (): void => {
     if (typeof window === 'undefined') return;
     localStorage.removeItem(TOKEN_KEY);
+    // Remove the auth cookie as well.
+    document.cookie = `${TOKEN_COOKIE_KEY}=; Path=/; Max-Age=0; SameSite=Lax`;
   },
 };
 
@@ -121,6 +134,13 @@ const client: AxiosInstance = axios.create({
 
 client.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // For file uploads (multipart/form-data) let the browser generate the
+    // boundary automatically — do NOT force the default JSON content type.
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      config.headers.delete('Content-Type');
+      config.headers.set('Accept', 'application/json');
+    }
+
     const token = tokenStorage.get();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

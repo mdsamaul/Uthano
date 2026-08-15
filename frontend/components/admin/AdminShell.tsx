@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Menu, Store, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useAccess } from '@/hooks/use-access';
+import { useRolePath } from '@/lib/role-utils';
 import { Logo } from '@/components/brand/Logo';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Forbidden } from '@/components/common/state-components';
@@ -24,9 +25,10 @@ import { Spinner } from '@/components/ui/spinner';
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
   const { user, isAuthenticated, isRestoring, logout } = useAuth();
   const { isAdmin, isSuperAdmin, isLoading: accessLoading } = useAccess();
+  const { to } = useRolePath();
 
   useEffect(() => {
     if (!isRestoring && !isAuthenticated && !pathname.startsWith('/auth/login')) {
@@ -63,12 +65,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     router.push('/auth/login');
   };
 
-  return (
+      return (
     <div className="flex min-h-screen bg-muted/30">
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-border bg-card lg:block">
         <div className="flex h-16 items-center border-b border-border px-6">
-          <Link href="/admin">
+          <Link href={to('/')}>
             <Logo />
           </Link>
         </div>
@@ -77,13 +79,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Mobile sidebar */}
+            {/* Mobile sidebar */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
+          <div className="absolute inset-0 bg-black/50"
+            onClick={() => setMobileOpen(false)}
+          />
           <aside className="absolute left-0 top-0 h-full w-64 bg-card shadow-lg">
             <div className="flex h-16 items-center border-b border-border px-6">
-              <Link href="/admin" onClick={() => setMobileOpen(false)}>
+              <Link href={to('/')} onClick={() => setMobileOpen(false)}>
                 <Logo />
               </Link>
             </div>

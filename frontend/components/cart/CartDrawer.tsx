@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCartStore, useUIStore } from '@/store';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, getImageUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 export function CartDrawer() {
@@ -61,7 +61,7 @@ export function CartDrawer() {
                     <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md bg-muted">
                       {item.product?.images?.[0]?.url ? (
                         <Image
-                          src={item.product.images[0].url}
+                          src={getImageUrl(item.product.images[0].url)}
                           alt={item.product.name}
                           fill
                           className="object-cover"

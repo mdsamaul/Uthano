@@ -84,7 +84,7 @@ export const productSchema = z.object({
   unit: z.string().min(1, 'Unit is required'),
   min_order_qty: z.number().min(1, 'Minimum order quantity must be at least 1'),
   max_order_qty: z.number().min(1, 'Maximum order quantity must be at least 1'),
-  status: z.enum(['active', 'inactive', 'draft']),
+  status: z.enum(['active', 'inactive', 'draft', 'discontinued']),
   featured: z.boolean().default(false),
   is_seasonal: z.boolean().default(false),
 });

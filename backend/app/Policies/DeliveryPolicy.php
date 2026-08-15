@@ -9,12 +9,12 @@ class DeliveryPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('delivery.view') || $user->isAdmin();
+        return $user->hasPermission('delivery.view');
     }
 
     public function view(User $user, Delivery $delivery): bool
     {
-        if ($user->hasPermission('delivery.view') || $user->isAdmin()) {
+        if ($user->hasPermission('delivery.view')) {
             return true;
         }
 
@@ -24,12 +24,12 @@ class DeliveryPolicy
 
     public function assign(User $user): bool
     {
-        return $user->hasPermission('delivery.assign') || $user->isAdmin();
+        return $user->hasPermission('delivery.assign');
     }
 
     public function update(User $user, Delivery $delivery): bool
     {
-        if ($user->hasPermission('delivery.update') || $user->isAdmin()) {
+        if ($user->hasPermission('delivery.update')) {
             return true;
         }
 

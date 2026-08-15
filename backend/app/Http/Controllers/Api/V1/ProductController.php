@@ -49,19 +49,12 @@ class ProductController extends Controller
     {
         $this->authorize('create', Product::class);
 
-        $product = Product::create($request->validated());
+        $data = $request->validated();
+        $data['slug'] = $data['slug'] ?? $this->generateUniqueSlug($data['name']);
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $index => $image) {
-                $path = $image->store('products', 'public');
-                $product->images()->create([
-                    'image_path' => $path,
-                    'image_url' => asset('storage/' . $path),
-                    'is_primary' => $index === 0,
-                    'sort_order' => $index,
-                ]);
-            }
-        }
+        $product = Product::create($data);
+
+        $this->saveImages($product, $request->file('images', []));
 
         return ApiResponse::created('Product created successfully', new ProductResource($product->load(['category', 'unit', 'images'])));
     }
@@ -71,7 +64,14 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $this->authorize('update', $product);
 
-        $product->update($request->validated());
+        $data = $request->validated();
+        $data['slug'] = $data['slug'] ?? $this->generateUniqueSlug($data['name'], $product->id);
+
+        $product->update($data);
+
+        if ($request->hasFile('images')) {
+            $this->saveImages($product, $request->file('images'), true);
+        }
 
         return ApiResponse::success('Product updated successfully', new ProductResource($product->load(['category', 'unit', 'images'])));
     }
@@ -81,8 +81,63 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $this->authorize('delete', $product);
 
+        // Remove product images from storage before deleting the record.
+        foreach ($product->images as $image) {
+            if ($image->image_path && \Storage::disk('public')->exists($image->image_path)) {
+                \Storage::disk('public')->delete($image->image_path);
+            }
+        }
+
         $product->delete();
 
         return ApiResponse::noContent();
+    }
+
+    /**
+     * Persist uploaded images. When replacing (update flow) the old images
+     * are removed from storage so no orphaned files are left behind.
+     */
+    private function saveImages(Product $product, array $images, bool $replace = false): void
+    {
+        if ($replace) {
+            foreach ($product->images as $existing) {
+                if ($existing->image_path && \Storage::disk('public')->exists($existing->image_path)) {
+                    \Storage::disk('public')->delete($existing->image_path);
+                }
+            }
+            $product->images()->delete();
+        }
+
+        foreach (array_values($images) as $index => $image) {
+            $filename = $this->uniqueFilename($image->getClientOriginalName());
+            $path = $image->storeAs('products', $filename, 'public');
+
+            $product->images()->create([
+                'image_path' => $path,
+                'image_url' => \Storage::disk('public')->url($path),
+                'is_primary' => $index === 0,
+                'sort_order' => $index,
+            ]);
+        }
+    }
+
+    private function uniqueFilename(string $originalName): string
+    {
+        $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION)) ?: 'jpg';
+
+        return substr(md5(uniqid((string) random_int(1, 999999), true)), 0, 12) . '-' . \Str::slug(pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $extension;
+    }
+
+    private function generateUniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $base = \Str::slug($name);
+        $slug = $base;
+        $counter = 1;
+
+        while (Product::where('slug', $slug)->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))->exists()) {
+            $slug = $base . '-' . $counter++;
+        }
+
+        return $slug;
     }
 }

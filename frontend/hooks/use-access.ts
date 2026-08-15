@@ -39,6 +39,16 @@ export function useAccess() {
     return isSuperAdmin;
   }, [isSuperAdmin]);
 
+  /**
+   * Simple permission helper for the simplified role system.
+   * Admin roles (superadmin, admin, staff, warehouse_manager) implicitly
+   * have every permission — matching the backend's `hasAdminAccess()`.
+   */
+  const hasPermission = useCallback(
+    (_permission: string): boolean => isAdmin,
+    [isAdmin]
+  );
+
   return {
     role,
     isSuperAdmin,
@@ -48,6 +58,9 @@ export function useAccess() {
     hasAdminAccess: hasAdminAccess(),
     hasSuperAdminAccess: hasSuperAdminAccess(),
     hasRole,
+    hasPermission,
+    // Kept for compatibility with admin shells/sidebars that gate on it.
+    isLoading: false,
     isAuthenticated,
   };
 }

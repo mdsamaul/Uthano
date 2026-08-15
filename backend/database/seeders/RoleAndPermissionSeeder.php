@@ -147,9 +147,12 @@ class RoleAndPermissionSeeder extends Seeder
         // Super Admin gets all permissions (full bypass)
         $superAdmin->permissions()->sync(Permission::pluck('id'));
 
-        // Admin role is permission-based: it only grants dashboard access by default.
-        // Individual admins receive their real permissions via direct assignment
-        // or through specialized roles (managed by the superadmin).
+        // The admin role is only a container for entering the admin panel — it does
+        // NOT grant every permission by default. Each admin user's real access
+        // comes from direct permission assignment (done in DatabaseSeeder or by
+        // the superadmin through the Admins page). This keeps per-user access
+        // granular: an "Order Manager" only sees orders, a "Product Manager"
+        // only sees products, etc.
         $admin->permissions()->sync(
             Permission::where('slug', 'dashboard.view')->pluck('id')
         );

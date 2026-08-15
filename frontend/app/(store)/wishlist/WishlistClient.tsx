@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { EmptyState, Unauthorized, ErrorMessage } from '@/components/common/state-components';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, getImageUrl } from '@/lib/utils';
 import { Heart, Trash2, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -95,7 +95,7 @@ export function WishlistClient() {
             >
               {product.images?.[0]?.url ? (
                 <Image
-                  src={product.images[0].url}
+                  src={getImageUrl(product.images[0].url)}
                   alt={product.name}
                   fill
                   sizes="(max-width: 640px) 50vw, 33vw"

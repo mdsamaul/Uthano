@@ -54,7 +54,11 @@ class ProductResource extends JsonResource
                 'is_primary' => $img->is_primary,
                 'sort_order' => $img->sort_order,
             ])),
-            'status' => $this->is_active ? 'active' : 'inactive',
+            // Reflect the real lifecycle status stored in the DB
+            // (DRAFT/ACTIVE/INACTIVE/DISCONTINUED) instead of deriving it
+            // from `is_active`, so admins can distinguish e.g. DRAFT from
+            // ACTIVE products. `is_active` stays a separate flag.
+            'status' => strtolower($this->status ?? 'draft'),
             'featured' => $this->is_featured,
             'is_seasonal' => $this->product_type === 'SEASONAL',
             'rating' => $this->whenLoaded('reviews', fn () => round($this->reviews->avg('rating'), 1), 0),

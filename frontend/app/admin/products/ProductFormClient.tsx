@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '@/services';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,10 @@ import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ErrorMessage } from '@/components/common/state-components';
 import { useUIStore } from '@/store';
-import { slugify } from '@/lib/utils';
-import { ArrowLeft } from 'lucide-react';
-import { Category, Product, Unit } from '@/types';
+import { slugify, getImageUrl } from '@/lib/utils';
+import { useRolePath } from '@/lib/role-utils';
+import { ArrowLeft, ImagePlus, X } from 'lucide-react';
+import { Category, PaginatedData, Product, ProductImage, Unit } from '@/types';
 
 const PRODUCT_TYPES = ['FRESH', 'PACKAGED', 'ORGANIC', 'PROCESSED'];
 const PRODUCT_STATUSES = ['DRAFT', 'ACTIVE', 'INACTIVE', 'DISCONTINUED'];
@@ -59,6 +60,16 @@ const EMPTY_FORM: FormState = {
   stock_tracking: true,
 };
 
+// Map the API's lowercase status back to the form's uppercase option values.
+function mapProductStatus(p: Product): string {
+  const normalized = (p.status ?? '').toLowerCase();
+  if (normalized === 'draft') return 'DRAFT';
+  if (normalized === 'inactive') return 'INACTIVE';
+  if (normalized === 'discontinued') return 'DISCONTINUED';
+  if (normalized === 'active') return 'ACTIVE';
+  return p.is_active === false ? 'INACTIVE' : 'ACTIVE';
+}
+
 function buildPayload(form: FormState): Record<string, unknown> {
   const payload: Record<string, unknown> = {
     name: form.name.trim(),
@@ -86,14 +97,44 @@ function buildPayload(form: FormState): Record<string, unknown> {
     return payload;
 }
 
+// Build a multipart/form-data payload so the uploaded images are sent together
+// with the product fields. Booleans are sent as "1"/"0" (Laravel's boolean
+// validation rule only accepts those string representations).
+function buildImagesFormData(form: FormState, files: File[]): FormData {
+  const fd = new FormData();
+  fd.append('name', form.name.trim());
+  fd.append('slug', form.slug.trim() || slugify(form.name));
+  fd.append('sku', form.sku.trim());
+  fd.append('category_id', String(Number(form.category_id) || ''));
+  fd.append('unit_id', String(Number(form.unit_id) || ''));
+  fd.append('product_type', form.product_type);
+  fd.append('status', form.status);
+  fd.append('base_price', String(Number(form.base_price) || 0));
+  fd.append('selling_price', String(Number(form.selling_price) || 0));
+  if (form.cost_price) fd.append('cost_price', String(Number(form.cost_price)));
+  if (form.minimum_order_quantity) fd.append('minimum_order_quantity', String(Number(form.minimum_order_quantity)));
+  if (form.maximum_order_quantity) fd.append('maximum_order_quantity', String(Number(form.maximum_order_quantity)));
+  fd.append('stock_tracking', form.stock_tracking ? '1' : '0');
+  fd.append('is_featured', form.is_featured ? '1' : '0');
+  fd.append('is_active', form.is_active ? '1' : '0');
+  if (form.description) fd.append('description', form.description);
+  if (form.short_description) fd.append('short_description', form.short_description);
+  files.forEach((file) => fd.append('images[]', file));
+  return fd;
+}
+
 export function ProductFormClient({ productId }: { productId?: string }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const showToast = useUIStore((s) => s.showToast);
+  const { to } = useRolePath();
   const isEdit = !!productId;
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loadedId, setLoadedId] = useState<string | null>(null);
+  const [formFiles, setFormFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const categoriesQuery = useQuery({
     queryKey: ['admin', 'categories'],
@@ -127,7 +168,7 @@ export function ProductFormClient({ productId }: { productId?: string }) {
         category_id: String(product.category_id ?? ''),
         unit_id: String(product.unit_id ?? ''),
         product_type: product.product_type ?? 'FRESH',
-        status: product.is_active === false ? 'INACTIVE' : product.status === 'draft' ? 'DRAFT' : 'ACTIVE',
+        status: mapProductStatus(product),
         base_price: product.base_price != null ? String(product.base_price) : '',
         selling_price: product.price != null ? String(product.price) : '',
         cost_price: product.cost_price != null ? String(product.cost_price) : '',
@@ -156,21 +197,79 @@ export function ProductFormClient({ productId }: { productId?: string }) {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const payload = buildPayload(form);
+      const data = formFiles.length > 0 ? buildImagesFormData(form, formFiles) : buildPayload(form);
       if (isEdit) {
-        return adminService.updateProduct(Number(productId), payload);
+        return adminService.updateProduct(Number(productId), data);
       }
-      return adminService.createProduct(payload);
+      return adminService.createProduct(data);
     },
-    onSuccess: () => {
+              onSuccess: async (result) => {
+      // Optimistically upsert the saved product into every cached product list
+      // (admin + storefront) so it appears INSTANTLY, before the refetch
+      // completes. This guarantees the new/updated product shows in the list
+      // without requiring a page reload, even when results are paginated and
+      // the product would otherwise land on a later page.
+      const item = result as Product | undefined;
+      if (item) {
+        const upsert = (old: PaginatedData<Product> | undefined) => {
+          if (!old) return old;
+          const exists = old.items.some((p) => p.id === item.id);
+          const items = exists
+            ? old.items.map((p) => (p.id === item.id ? item : p))
+            : [item, ...old.items];
+          const total = (Number(old.meta?.total) || old.items.length) + (exists ? 0 : 1);
+          return { ...old, items, meta: { ...old.meta, total } };
+        };
+        // Admin products list (exact key)
+        queryClient.setQueryData(['admin', 'products'], (old: PaginatedData<Product> | undefined) => upsert(old));
+        // Storefront product lists (any key whose first segment is 'products')
+        queryClient
+          .getQueryCache()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .findAll({ predicate: (q: any) => Array.isArray(q?.queryKey) && q.queryKey[0] === 'products' })
+          .forEach((q) => queryClient.setQueryData(q.queryKey, (old: PaginatedData<Product> | undefined) => upsert(old)));
+      }
+
       showToast(isEdit ? 'Product updated successfully.' : 'Product created successfully.');
-      router.push('/admin/products');
+      // Refetch all product-related queries to ensure the list is fresh
+      // after navigation. This is more reliable than optimistic updates
+      // when the cache might be stale or missing.
+      await queryClient.refetchQueries({ queryKey: ['admin', 'products'] });
+      await queryClient.refetchQueries({ queryKey: ['products'] });
+      await queryClient.refetchQueries({ queryKey: ['admin', 'dashboard-stats'] });
+      await queryClient.refetchQueries({ queryKey: ['admin', 'top-products'] });
+      router.push(to('/products'));
     },
     onError: (err) => showToast(err instanceof Error ? err.message : 'Unable to save product.', 'error'),
   });
 
   const setField = (key: keyof FormState, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [key]: value }));
+
+  const existingImages = isEdit && product ? (product.images ?? []) : [];
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []).slice(0, 5);
+    setFormFiles(files);
+    // Create local previews and revoke any previous object URLs.
+    setImagePreviews((prev) => {
+      prev.forEach((url) => URL.revokeObjectURL(url));
+      return files.map((file) => URL.createObjectURL(file));
+    });
+    // Allow re-selecting the same file after a new selection.
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    setFormFiles((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      setImagePreviews((p) => {
+        URL.revokeObjectURL(p[index]);
+        return p.filter((_, i) => i !== index);
+      });
+      return next;
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,7 +280,7 @@ export function ProductFormClient({ productId }: { productId?: string }) {
   if (productQuery.isError) {
     return (
       <div className="space-y-4">
-        <Link href="/admin/products" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+                <Link href={to('/products')} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
           <ArrowLeft className="h-4 w-4" /> Back to Products
         </Link>
         <ErrorMessage message="Product could not be loaded." onRetry={() => productQuery.refetch()} />
@@ -192,7 +291,7 @@ return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/admin/products" className="text-muted-foreground hover:text-foreground">
+                  <Link href={to('/products')} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <h1 className="text-2xl font-bold">{isEdit ? 'Edit Product' : 'Add Product'}</h1>
@@ -380,8 +479,82 @@ return (
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle>Product Images</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-3">
+              {existingImages.map((img: ProductImage) => (
+                <div
+                  key={img.id}
+                  className="relative h-24 w-24 overflow-hidden rounded-md border border-border"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={getImageUrl(img.url)}
+                    alt={img.alt || product?.name || 'Product image'}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ))}
+              {imagePreviews.map((preview, index) => (
+                <div
+                  key={`preview-${index}`}
+                  className="relative h-24 w-24 overflow-hidden rounded-md border border-border"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={preview}
+                    alt={`Selected image ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                    aria-label={`Remove image ${index + 1}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              {existingImages.length === 0 && imagePreviews.length === 0 && (
+                <div className="flex h-24 w-24 items-center justify-center rounded-md border border-dashed border-border text-center">
+                  <span className="text-xs text-muted-foreground">No image</span>
+                </div>
+              )}
+            </div>
+
+            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-primary">
+              <ImagePlus className="h-4 w-4" />
+              {formFiles.length > 0
+                ? 'Change Images'
+                : existingImages.length > 0
+                  ? 'Replace Images'
+                  : 'Upload Images'}
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+            </label>
+            <p className="text-xs text-muted-foreground">
+              Max 5 images. JPG, PNG or WebP, up to 2MB each. The first image becomes
+              the main photo shown on product cards.
+            </p>
+            {formFiles.length > 0 && (
+              <p className="text-xs text-amber-600">
+                Uploading new images will replace the current product photos.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
         <div className="flex justify-end gap-2">
-          <Link href="/admin/products">
+                    <Link href={to('/products')}>
             <Button type="button" variant="outline">Cancel</Button>
           </Link>
           <Button type="submit" disabled={saveMutation.isPending || (isEdit && productQuery.isLoading)} isLoading={saveMutation.isPending}>

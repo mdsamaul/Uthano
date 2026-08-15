@@ -143,4 +143,73 @@ class InventoryController extends Controller
 
         return ApiResponse::success('Traceability fetched successfully', $trace);
     }
+
+    /**
+     * Stock IN — receive product quantity from a harvest batch into a warehouse.
+     * This is how a product receives its stock (and its farm/farmer source).
+     */
+    public function receive(Request $request): JsonResponse
+    {
+        $this->authorize('adjust', InventoryItem::class);
+
+        $validated = $request->validate([
+            'product_id' => ['required', 'exists:products,id'],
+            'harvest_batch_id' => ['required', 'exists:harvest_batches,id'],
+            'warehouse_id' => ['required', 'exists:warehouses,id'],
+            'quantity' => ['required', 'numeric', 'min:0.01'],
+            'unit_id' => ['required', 'exists:units,id'],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $item = $this->inventoryService->receiveInventory(
+            $validated['product_id'],
+            $validated['harvest_batch_id'],
+            $validated['warehouse_id'],
+            (float) $validated['quantity'],
+            $validated['unit_id'],
+            null,
+            $validated['notes'] ?? null,
+            $request->user()->id
+        );
+
+        return ApiResponse::success(
+            'Stock received successfully',
+            new InventoryItemResource($item->load(['product', 'harvestBatch.harvest.farm.farmer', 'warehouse', 'unit']))
+        );
+    }
+
+    /**
+     * Stock OUT — manually remove stock (damaged, expired, returned, adjustment).
+     */
+    public function stockOut(Request $request, int $id): JsonResponse
+    {
+        $this->authorize('adjust', InventoryItem::class);
+
+        $validated = $request->validate([
+            'quantity' => ['required', 'numeric', 'min:0.01'],
+            'reason' => ['required', 'in:ADJUSTMENT,DAMAGED,EXPIRED,RETURNED'],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $item = InventoryItem::findOrFail($id);
+
+        if ($validated['quantity'] > (float) $item->available_quantity) {
+            throw ValidationException::withMessages([
+                'quantity' => ['Cannot remove more than the available quantity (' . $item->available_quantity . ').'],
+            ]);
+        }
+
+        $updated = $this->inventoryService->adjustStock(
+            $id,
+            $validated['quantity'],
+            $validated['reason'],
+            $validated['notes'] ?? null,
+            $request->user()->id
+        );
+
+        return ApiResponse::success(
+            'Stock removed successfully',
+            new InventoryItemResource($updated->load(['product', 'harvestBatch.harvest.farm.farmer', 'warehouse', 'unit']))
+        );
+    }
 }

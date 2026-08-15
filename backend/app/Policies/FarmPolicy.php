@@ -9,12 +9,12 @@ class FarmPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('farm.view') || $user->isAdmin();
+        return $user->hasPermission('farm.view');
     }
 
     public function view(User $user, Farm $farm): bool
     {
-        if ($user->hasPermission('farm.view') || $user->isAdmin()) {
+        if ($user->hasPermission('farm.view')) {
             return true;
         }
 
@@ -24,12 +24,12 @@ class FarmPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasPermission('farm.create') || $user->isAdmin();
+        return $user->hasPermission('farm.create');
     }
 
     public function update(User $user, Farm $farm): bool
     {
-        if ($user->hasPermission('farm.update') || $user->isAdmin()) {
+        if ($user->hasPermission('farm.update')) {
             return true;
         }
 
@@ -38,6 +38,6 @@ class FarmPolicy
 
     public function delete(User $user, Farm $farm): bool
     {
-        return $user->hasPermission('farm.delete') || $user->isAdmin();
+        return $user->hasPermission('farm.delete');
     }
 }

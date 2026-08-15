@@ -86,7 +86,7 @@ export interface Product {
   max_order_qty?: number;
   is_active?: boolean;
   images?: ProductImage[];
-  status: 'active' | 'inactive' | 'draft';
+  status: 'active' | 'inactive' | 'draft' | 'discontinued';
   featured: boolean;
   is_seasonal: boolean;
   rating: number;
@@ -96,6 +96,13 @@ export interface Product {
   farm_id?: number;
   farm?: Farm;
   source_district?: string;
+  source_summary?: {
+    batch_code?: string;
+    harvest_date?: string;
+    district?: string;
+    farm_name?: string;
+    farmer?: { id: number; full_name: string };
+  } | null;
   harvest_date?: string;
   quality_grade?: string;
   created_at: string;
@@ -181,6 +188,55 @@ export interface Farmer {
   created_at: string;
   updated_at: string;
 }
+// --------------------------------------------
+// Admin API types — match the backend Farm/Farmer resources
+// used by the /admin/farmers and /admin/farms endpoints.
+// --------------------------------------------
+
+export interface AdminFarmer {
+  id: number;
+  farmer_code: string;
+  full_name: string;
+  phone: string;
+  alternate_phone?: string | null;
+  photo?: string | null;
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+  verification_status: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  notes?: string | null;
+  national_id?: string | null;
+  farms_count?: number;
+  farms?: AdminFarm[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminFarm {
+  id: number;
+  farm_code: string;
+  farm_name: string;
+  farmer_id: number;
+  farmer?: { id: number; full_name: string; farmer_code: string } | null;
+  division?: string | null;
+  district: string;
+  upazila: string;
+  union?: string | null;
+  village: string;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  land_area?: number | null;
+  land_area_unit?: string | null;
+  soil_type?: string | null;
+  irrigation_type?: string | null;
+  farming_method?: string | null;
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+  verification_status: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  notes?: string | null;
+  crops_count?: number;
+  harvests_count?: number;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface FarmCrop {
   id: number;
@@ -223,9 +279,13 @@ export interface HarvestBatch {
   product_id: number;
   product?: Product;
   quantity: number;
-  unit: string;
+  unit_id?: number;
+  unit?: string;
+  remaining_quantity?: number;
   quality_grade: string;
-  status: 'pending' | 'quality_checked' | 'approved' | 'rejected';
+  harvested_at?: string;
+  expiry_date?: string;
+  status: 'CREATED' | 'COLLECTED' | 'IN_TRANSIT' | 'RECEIVED' | 'AVAILABLE' | 'PARTIALLY_SOLD' | 'SOLD_OUT' | 'REJECTED' | 'EXPIRED';
   quality_checked_at?: string;
   created_at: string;
   updated_at: string;
@@ -237,16 +297,31 @@ export interface HarvestBatch {
 
 export interface Inventory {
   id: number;
-  product_id: number;
   product?: Product;
-  batch_id: number;
-  batch?: HarvestBatch;
-  warehouse_id: number;
+  product_id?: number;
+  quantity: number;
+  reserved_quantity: number;
+  available_quantity: number;
+  unit?: { id: number; name: string; symbol: string };
   warehouse?: Warehouse;
-  available_qty: number;
-  reserved_qty: number;
-  damaged_qty: number;
-  status: 'in_stock' | 'low_stock' | 'out_of_stock';
+  warehouse_id?: number;
+  harvest_batch?: {
+    id: number;
+    batch_code: string;
+    status: string;
+    harvest?: {
+      id: number;
+      harvest_code: string;
+      harvest_date: string;
+      farm?: {
+        id: number;
+        farm_name: string;
+        district: string;
+        farmer?: { id: number; full_name: string };
+      };
+    };
+  };
+  status: string;
   created_at: string;
   updated_at: string;
 }
@@ -417,11 +492,17 @@ export interface AdminOrder {
 
 export interface Customer {
   id: number;
-  user_id: number;
-  user?: User;
-  name: string;
+  user_id?: number;
+  customer_code?: string;
+  full_name?: string;
+  /** Legacy alias kept for places that referenced the shape before the API returned full_name. */
+  name?: string;
   phone: string;
   email?: string;
+  alternate_phone?: string;
+  photo?: string;
+  status?: string;
+  user?: User;
   addresses?: Address[];
   created_at: string;
   updated_at: string;

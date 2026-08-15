@@ -18,6 +18,9 @@ export function useAuth() {
       if (storedToken && !isAuthenticated) {
         try {
           const currentUser = await authService.getCurrentUser();
+          // Re-establish the middleware cookie so protected-route
+          // navigations after hydration are authorized.
+          tokenStorage.set(storedToken);
           setAuth(currentUser, storedToken);
         } catch {
           tokenStorage.clear();

@@ -18,8 +18,14 @@ class UserAdminController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        // Admin panel only: customers and portal roles (farmer, delivery_agent)
+        // are managed from their own sections, not from the admin users list.
         $query = User::query()
             ->with(['roles.permissions', 'permissions'])
+            ->where(function ($q) {
+                $q->whereIn('role', ['superadmin', 'admin', 'staff', 'warehouse_manager'])
+                    ->orWhereNull('role');
+            })
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->string('search');
                 $q->where(function ($inner) use ($search) {

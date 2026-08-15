@@ -8,9 +8,12 @@ use App\Http\Resources\CustomerAddressResource;
 use App\Http\Resources\CustomerProfileResource;
 use App\Models\CustomerAddress;
 use App\Models\CustomerProfile;
+use App\Models\User;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class CustomerController extends Controller
 {
@@ -51,6 +54,50 @@ class CustomerController extends Controller
         $profile = CustomerProfile::with(['addresses', 'orders'])->findOrFail($id);
 
         return ApiResponse::success('Customer fetched successfully', new CustomerProfileResource($profile));
+    }
+
+    /**
+     * Create a customer (used by the admin panel).
+     * Body: { "full_name": "...", "phone": "017xxxxxxxx" }
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'full_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'regex:/^[0-9+\-\s]{8,20}$/', 'unique:customer_profiles,phone'],
+        ]);
+
+        try {
+            \DB::beginTransaction();
+
+            $user = User::create([
+                'name' => $validated['full_name'],
+                'email' => null,
+                'phone' => $validated['phone'],
+                'password' => Hash::make(Str::random(32)),
+                'role' => 'customer',
+                'is_active' => true,
+            ]);
+
+            $profile = CustomerProfile::create([
+                'user_id' => $user->id,
+                'customer_code' => 'CUS-' . strtoupper(Str::random(8)),
+                'full_name' => $validated['full_name'],
+                'phone' => $validated['phone'],
+                'status' => 'active',
+            ]);
+
+            \DB::commit();
+
+            return ApiResponse::created(
+                'Customer created successfully. They can now log in with this phone number via OTP.',
+                new CustomerProfileResource($profile->load('addresses'))
+            );
+        } catch (\Throwable $e) {
+            \DB::rollBack();
+
+            return ApiResponse::error('Unable to create customer. ' . $e->getMessage(), 422);
+        }
     }
 
     public function profile(Request $request): JsonResponse

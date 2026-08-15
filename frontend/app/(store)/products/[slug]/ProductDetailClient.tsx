@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MapPin, Star, Minus, Plus, ShieldCheck, Truck, Sprout } from 'lucide-react';
 import { Product } from '@/types';
-import { formatBDT, formatDate, STOCK_STATUS_LABELS } from '@/lib/utils';
+import { formatBDT, formatDate, STOCK_STATUS_LABELS, getImageUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AddToCartButton } from '@/components/product/AddToCartButton';
@@ -85,7 +85,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-muted">
             {images[activeImage]?.url ? (
               <Image
-                src={images[activeImage].url}
+                src={getImageUrl(images[activeImage].url)}
                 alt={images[activeImage].alt || product.name}
                 fill
                 priority
@@ -117,7 +117,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                   aria-label={`View image ${index + 1}`}
                 >
                   <Image
-                    src={image.url}
+                    src={getImageUrl(image.url)}
                     alt={image.alt || product.name}
                     fill
                     sizes="80px"

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Star } from 'lucide-react';
 import { Product } from '@/types';
-import { formatBDT, STOCK_STATUS_LABELS } from '@/lib/utils';
+import { formatBDT, STOCK_STATUS_LABELS, getImageUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { AddToCartButton } from './AddToCartButton';
 
@@ -14,7 +14,7 @@ interface ProductCardProps {
 export function ProductCard({ product, priority = false }: ProductCardProps) {
   const hasDiscount =
     product.discount_price && product.discount_price < product.price;
-  const primaryImage = product.images?.find((img) => img.is_primary)?.url;
+  const primaryImage = getImageUrl(product.images?.find((img) => img.is_primary)?.url);
   const displayPrice = product.discount_price || product.price;
 
   return (
@@ -62,6 +62,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
             <MapPin className="h-3 w-3" />
             From {product.source_district}
+            {product.farm?.name ? ` · ${product.farm.name}` : ''}
           </p>
         )}
 

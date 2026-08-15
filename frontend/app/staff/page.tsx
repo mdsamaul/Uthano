@@ -8,7 +8,7 @@ export default function StaffPage() {
       allowedRoles="staff"
       fallbackRoute="/"
       loginRedirect="/auth/login?redirect=/staff"
-      successRoute="/admin/dashboard"
+      successRoute="/staff/dashboard"
       loadingMessage="Loading Staff Dashboard..."
     />
   );

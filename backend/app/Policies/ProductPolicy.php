@@ -19,16 +19,16 @@ class ProductPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasPermission('product.create') || $user->isAdmin();
+        return $user->hasPermission('product.create');
     }
 
     public function update(User $user, Product $product): bool
     {
-        return $user->hasPermission('product.update') || $user->isAdmin();
+        return $user->hasPermission('product.update');
     }
 
     public function delete(User $user, Product $product): bool
     {
-        return $user->hasPermission('product.delete') || $user->isAdmin();
+        return $user->hasPermission('product.delete');
     }
 }

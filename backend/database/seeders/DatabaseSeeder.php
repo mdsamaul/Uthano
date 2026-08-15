@@ -16,6 +16,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed roles & permissions first (used by admin/user management features)
+        $this->call(RoleAndPermissionSeeder::class);
+
         // ============================================
         // SUPER ADMIN
         // ============================================
@@ -34,8 +37,9 @@ class DatabaseSeeder extends Seeder
         // ADMIN USERS
         // ============================================
 
-        // Create main admin user
-        User::updateOrCreate(
+        // Create main admin user (full operational access via direct permissions,
+        // excluding superadmin-only user/role/permission management)
+        $mainAdmin = User::updateOrCreate(
             ['email' => 'admin@uthano.com'],
             [
                 'name' => 'UTHANO Admin',
@@ -45,9 +49,16 @@ class DatabaseSeeder extends Seeder
                 'role' => 'admin',
             ]
         );
+        $mainAdmin->permissions()->sync(
+            \App\Models\Permission::whereNotIn('slug', [
+                'user.view', 'user.manage',
+                'role.view', 'role.manage',
+                'permission.view', 'permission.manage',
+            ])->pluck('id')
+        );
 
-        // Admin A - Product Manager
-        User::updateOrCreate(
+        // Admin A - Product Manager (only product + category access)
+        $adminA = User::updateOrCreate(
             ['email' => 'admin-a@uthano.com'],
             [
                 'name' => 'Admin A - Product Manager',
@@ -57,9 +68,16 @@ class DatabaseSeeder extends Seeder
                 'role' => 'admin',
             ]
         );
+        $adminA->permissions()->sync(
+            \App\Models\Permission::whereIn('slug', [
+                'dashboard.view',
+                'product.view', 'product.create', 'product.update', 'product.delete',
+                'category.view',
+            ])->pluck('id')
+        );
 
-        // Admin B - Order Manager
-        User::updateOrCreate(
+        // Admin B - Order Manager (order + customer access)
+        $adminB = User::updateOrCreate(
             ['email' => 'admin-b@uthano.com'],
             [
                 'name' => 'Admin B - Order Manager',
@@ -69,9 +87,16 @@ class DatabaseSeeder extends Seeder
                 'role' => 'admin',
             ]
         );
+        $adminB->permissions()->sync(
+            \App\Models\Permission::whereIn('slug', [
+                'dashboard.view',
+                'order.view', 'order.update', 'order.status.update', 'order.cancel',
+                'customer.view',
+            ])->pluck('id')
+        );
 
-        // Admin C - Delivery Manager
-        User::updateOrCreate(
+        // Admin C - Delivery Manager (delivery access)
+        $adminC = User::updateOrCreate(
             ['email' => 'admin-c@uthano.com'],
             [
                 'name' => 'Admin C - Delivery Manager',
@@ -80,6 +105,12 @@ class DatabaseSeeder extends Seeder
                 'is_active' => true,
                 'role' => 'admin',
             ]
+        );
+        $adminC->permissions()->sync(
+            \App\Models\Permission::whereIn('slug', [
+                'dashboard.view',
+                'delivery.view', 'delivery.assign', 'delivery.update',
+            ])->pluck('id')
         );
 
         // Staff user

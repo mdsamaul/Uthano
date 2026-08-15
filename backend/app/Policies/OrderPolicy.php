@@ -9,12 +9,12 @@ class OrderPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('order.view') || $user->isAdmin();
+        return $user->hasPermission('order.view');
     }
 
     public function view(User $user, Order $order): bool
     {
-        if ($user->isAdmin() || $user->hasPermission('order.view')) {
+        if ($user->hasPermission('order.view')) {
             return true;
         }
 
@@ -29,12 +29,12 @@ class OrderPolicy
 
     public function update(User $user, Order $order): bool
     {
-        return $user->hasPermission('order.update') || $user->isAdmin();
+        return $user->hasPermission('order.update');
     }
 
     public function cancel(User $user, Order $order): bool
     {
-        if ($user->hasPermission('order.cancel') || $user->isAdmin()) {
+        if ($user->hasPermission('order.cancel')) {
             return true;
         }
 

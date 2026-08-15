@@ -12,6 +12,7 @@ import { ErrorMessage } from '@/components/common/state-components';
 import { useUIStore } from '@/store';
 import { useAccess } from '@/hooks/use-access';
 import { formatBDT, formatDateTime, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, PAYMENT_METHOD_LABELS } from '@/lib/utils';
+import { useRolePath } from '@/lib/role-utils';
 import { ArrowLeft, Package } from 'lucide-react';
 import { AdminOrder, AdminOrderItem } from '@/types';
 
@@ -34,6 +35,7 @@ export function OrderDetailClient({ orderId }: { orderId: string }) {
   const queryClient = useQueryClient();
   const showToast = useUIStore((s) => s.showToast);
   const { hasPermission } = useAccess();
+  const { to } = useRolePath();
   const canUpdate = hasPermission('order.update');
   const [statusDraft, setStatusDraft] = useState('');
 
@@ -54,7 +56,7 @@ export function OrderDetailClient({ orderId }: { orderId: string }) {
   });
 
   const back = (
-    <Link href="/admin/orders" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+    <Link href={to('/orders')} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
       <ArrowLeft className="h-4 w-4" /> Back to Orders
     </Link>
   );
@@ -96,14 +98,14 @@ export function OrderDetailClient({ orderId }: { orderId: string }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/admin/orders" className="text-muted-foreground hover:text-foreground">
+              <div className="flex items-center gap-3">
+          <Link href={to('/orders')} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <h1 className="text-2xl font-bold">Order {order.order_number}</h1>
           <Badge className={statusColor(order.order_status)}>{statusLabel(order.order_status)}</Badge>
         </div>
-        <Link href="/admin/orders">
+                <Link href={to('/orders')}>
           <Button variant="outline" size="sm">All Orders</Button>
         </Link>
       </div>

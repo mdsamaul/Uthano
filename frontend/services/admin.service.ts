@@ -8,8 +8,8 @@ import {
   Customer,
   DashboardStats,
   Delivery,
-  Farm,
-  Farmer,
+  AdminFarm,
+  AdminFarmer,
   Harvest,
   HarvestBatch,
   Inventory,
@@ -56,11 +56,11 @@ export const adminService = {
     return apiGet<Product>(`/admin/products/${id}`);
   },
 
-  async createProduct(data: Partial<Product>): Promise<Product> {
+  async createProduct(data: Record<string, unknown> | FormData): Promise<Product> {
     return apiPost<Product>('/admin/products', data);
   },
 
-  async updateProduct(id: number, data: Partial<Product>): Promise<Product> {
+  async updateProduct(id: number, data: Record<string, unknown> | FormData): Promise<Product> {
     return apiPut<Product>(`/admin/products/${id}`, data);
   },
 
@@ -114,32 +114,40 @@ export const adminService = {
     return apiGet<Customer>(`/admin/customers/${id}`);
   },
 
+  async createCustomer(data: { full_name: string; phone: string }): Promise<Customer> {
+    return apiPost<Customer>('/admin/customers', data);
+  },
+
   // Farmers
-  async getFarmers(page = 1, perPage = 20, search?: string): Promise<PaginatedData<Farmer>> {
+  async getFarmers(page = 1, perPage = 20, search?: string): Promise<PaginatedData<AdminFarmer>> {
     const query = buildQueryString({ page, per_page: perPage, search });
-    return apiGet<PaginatedData<Farmer>>(`/admin/farmers${query}`);
+    return apiGet<PaginatedData<AdminFarmer>>(`/admin/farmers${query}`);
   },
 
-  async createFarmer(data: Partial<Farmer>): Promise<Farmer> {
-    return apiPost<Farmer>('/admin/farmers', data);
+  async createFarmer(data: Partial<AdminFarmer>): Promise<AdminFarmer> {
+    return apiPost<AdminFarmer>('/admin/farmers', data);
   },
 
-  async updateFarmer(id: number, data: Partial<Farmer>): Promise<Farmer> {
-    return apiPut<Farmer>(`/admin/farmers/${id}`, data);
+  async updateFarmer(id: number, data: Partial<AdminFarmer>): Promise<AdminFarmer> {
+    return apiPut<AdminFarmer>(`/admin/farmers/${id}`, data);
   },
 
   // Farms
-  async getFarms(page = 1, perPage = 20, search?: string): Promise<PaginatedData<Farm>> {
-    const query = buildQueryString({ page, per_page: perPage, search });
-    return apiGet<PaginatedData<Farm>>(`/admin/farms${query}`);
+  async getFarms(page = 1, perPage = 20, search?: string, status?: string): Promise<PaginatedData<AdminFarm>> {
+    const query = buildQueryString({ page, per_page: perPage, search, status });
+    return apiGet<PaginatedData<AdminFarm>>(`/admin/farms${query}`);
   },
 
-  async createFarm(data: Partial<Farm>): Promise<Farm> {
-    return apiPost<Farm>('/admin/farms', data);
+  async createFarm(data: Partial<AdminFarm>): Promise<AdminFarm> {
+    return apiPost<AdminFarm>('/admin/farms', data);
   },
 
-  async updateFarm(id: number, data: Partial<Farm>): Promise<Farm> {
-    return apiPut<Farm>(`/admin/farms/${id}`, data);
+  async updateFarm(id: number, data: Partial<AdminFarm>): Promise<AdminFarm> {
+    return apiPut<AdminFarm>(`/admin/farms/${id}`, data);
+  },
+
+  async deleteFarm(id: number): Promise<void> {
+    await apiDelete<void>(`/admin/farms/${id}`);
   },
 
   // Harvests
@@ -168,13 +176,31 @@ export const adminService = {
     return apiGet<PaginatedData<Inventory>>(`/admin/inventory${query}`);
   },
 
+  async receiveInventory(data: {
+    product_id: number;
+    harvest_batch_id: number;
+    warehouse_id: number;
+    quantity: number;
+    unit_id: number;
+    notes?: string;
+  }): Promise<Inventory> {
+    return apiPost<Inventory>('/admin/inventory/receive', data);
+  },
+
+  async stockOut(
+    id: number,
+    data: { quantity: number; reason: string; notes?: string }
+  ): Promise<Inventory> {
+    return apiPost<Inventory>(`/admin/inventory/${id}/stock-out`, data);
+  },
+
   async updateInventory(id: number, data: Partial<Inventory>): Promise<Inventory> {
     return apiPut<Inventory>(`/admin/inventory/${id}`, data);
   },
 
   // Warehouses
-  async getWarehouses(): Promise<Warehouse[]> {
-    return apiGet<Warehouse[]>('/admin/warehouses');
+    async getWarehouses(): Promise<PaginatedData<Warehouse>> {
+    return apiGet<PaginatedData<Warehouse>>('/admin/warehouses');
   },
 
   async createWarehouse(data: Partial<Warehouse>): Promise<Warehouse> {

@@ -8,10 +8,12 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ErrorMessage } from '@/components/common/state-components';
 import { formatBDT, formatDate, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '@/lib/utils';
+import { useRolePath } from '@/lib/role-utils';
 import { Eye } from 'lucide-react';
 import { Order } from '@/types';
 
 export function OrdersClient() {
+  const { to } = useRolePath();
   const ordersQuery = useQuery({
     queryKey: ['admin', 'orders'],
     queryFn: () => adminService.getOrders(1, 50),
@@ -42,7 +44,7 @@ export function OrdersClient() {
       key: 'actions',
       header: 'Actions',
       render: (o: Order) => (
-        <Link href={`/admin/orders/${o.id}`}>
+                  <Link href={to(`/orders/${o.id}`)}>
           <Eye className="h-4 w-4 text-muted-foreground hover:text-primary" />
         </Link>
       ),

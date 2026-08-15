@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '@/services';
 import { AdminTable } from '@/components/admin/AdminTable';
@@ -9,12 +9,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
-import { Modal, ConfirmDialog } from '@/components/ui/modal';
+import { ConfirmDialog } from '@/components/ui/modal';
 import { Pagination } from '@/components/common/pagination';
 import { ErrorMessage } from '@/components/common/state-components';
 import { useUIStore } from '@/store';
 import { useAccess } from '@/hooks/use-access';
 import { AccessCatalog, AdminUserFormValues, PaginationMeta, User } from '@/types';
+import { ArrowLeft, Pencil, Trash2, UserPlus, Ban, CheckCircle2 } from 'lucide-react';
 
 const EMPTY_META: PaginationMeta = {
   current_page: 1,
@@ -35,10 +36,11 @@ export function AdminsClient() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [togglingUser, setTogglingUser] = useState<User | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const usersQuery = useQuery({
     queryKey: ['admin', 'users', page, debouncedSearch, roleFilter],
@@ -48,7 +50,7 @@ export function AdminsClient() {
   const catalogQuery = useQuery({
     queryKey: ['admin', 'access', 'catalog'],
     queryFn: () => adminService.getAccessCatalog(),
-    enabled: modalOpen,
+    enabled: showForm,
   });
 
   const catalog: AccessCatalog = catalogQuery.data ?? { roles: [], permissions: {} };
@@ -56,7 +58,7 @@ export function AdminsClient() {
 
   const createMutation = useMutation({
     mutationFn: (data: AdminUserFormValues & { password: string }) => adminService.createUser(data),
-    onSuccess: () => { showToast('Admin created successfully.'); setModalOpen(false); invalidate(); },
+    onSuccess: () => { showToast('Admin created successfully.'); setShowForm(false); setEditingUser(null); invalidate(); },
     onError: (err) => showToast(err instanceof Error ? err.message : 'Unable to create admin.', 'error'),
   });
 
@@ -67,7 +69,7 @@ export function AdminsClient() {
       await adminService.updateUserRoles(id, roles ?? []);
       await adminService.updateUserPermissions(id, permissions ?? []);
     })(),
-    onSuccess: () => { showToast('Admin updated successfully.'); setModalOpen(false); invalidate(); },
+    onSuccess: () => { showToast('Admin updated successfully.'); setShowForm(false); setEditingUser(null); invalidate(); },
     onError: (err) => showToast(err instanceof Error ? err.message : 'Unable to update admin.', 'error'),
   });
 
@@ -80,245 +82,255 @@ export function AdminsClient() {
   const toggleMutation = useMutation({
     mutationFn: (id: number) => adminService.toggleUserStatus(id),
     onSuccess: (user) => {
-      showToast(user.is_active ? 'Admin activated successfully.' : 'Admin deactivated successfully.');
+      const action = user.is_active ? 'activated' : 'deactivated';
+      showToast(`Admin ${action} successfully.`);
       setTogglingUser(null);
       invalidate();
     },
     onError: (err) => showToast(err instanceof Error ? err.message : 'Unable to update admin status.', 'error'),
   });
 
-  const users = usersQuery.data?.items ?? [];
-  const meta = usersQuery.data?.meta ?? EMPTY_META;
-  const columns = useMemo(
-    () => [
-      {
-        key: 'name',
-        header: 'Name',
-        render: (u: User) => (
-          <div>
-            <p className="font-medium">{u.name}</p>
-            <p className="text-xs text-muted-foreground">{u.email}</p>
-          </div>
-        ),
-      },
-      { key: 'phone', header: 'Phone', render: (u: User) => u.phone || '—' },
-      {
-        key: 'roles',
-        header: 'Roles',
-        render: (u: User) => (
-          <div className="flex flex-wrap gap-1">
-            {(u.roles ?? []).map((r) => (
-              <span key={r} className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium capitalize">
-                {r.replace(/_/g, ' ')}
-              </span>
-            ))}
-            {u.is_superadmin && (
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                Super Admin
-              </span>
-            )}
-          </div>
-        ),
-      },
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      setDebouncedSearch(value);
+      setPage(1);
+    }, 300);
+  };
+
+  const handleRoleFilter = (value: string) => {
+    setRoleFilter(value);
+    setPage(1);
+  };
+
+  const handleEdit = (user: User) => {
+    setEditingUser(user);
+    setShowForm(true);
+  };
+
+  const handleAddNew = () => {
+    setEditingUser(null);
+    setShowForm(true);
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setEditingUser(null);
+  };
+
+  const columns = useMemo(() => {
+    const cols = [
+      { key: 'name', header: 'Name', render: (u: User) => <span className="font-medium">{u.name}</span> },
+      { key: 'email', header: 'Email' },
+      { key: 'roles', header: 'Role', render: (u: User) => (
+        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium capitalize">
+          {(u.role ?? 'customer').replace(/_/g, ' ')}
+        </span>
+      ) },
       {
         key: 'status',
         header: 'Status',
         render: (u: User) => (
-          <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-              u.is_active === false ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-            }`}
-          >
-            <span className={`h-1.5 w-1.5 rounded-full ${u.is_active === false ? 'bg-red-500' : 'bg-green-500'}`} />
-            {u.is_active === false ? 'Inactive' : 'Active'}
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${u.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            {u.is_active ? 'Active' : 'Inactive'}
           </span>
         ),
       },
-      {
+      { key: 'created_at', header: 'Created', render: (u: User) => new Date(u.created_at).toLocaleDateString() },
+    ];
+    if (canManage) {
+      cols.push({
         key: 'actions',
         header: 'Actions',
         render: (u: User) => (
-          <div className="flex flex-wrap items-center gap-2">
-            {canManage && (
-              <Button variant="outline" size="sm" onClick={() => { setEditingUser(u); setModalOpen(true); }}>
-                Edit
-              </Button>
-            )}
-            {canManage && (
-              <Button variant="outline" size="sm" onClick={() => setTogglingUser(u)}>
-                {u.is_active === false ? 'Activate' : 'Deactivate'}
-              </Button>
-            )}
-            {canManage && !u.is_superadmin && (
-              <Button variant="danger" size="sm" onClick={() => setDeletingUser(u)}>
-                Delete
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => handleEdit(u)} title="Edit admin">
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setTogglingUser(u)}
+              title={u.is_active ? 'Deactivate' : 'Activate'}
+            >
+              {u.is_active ? <Ban className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+            </Button>
+            {u.role !== 'superadmin' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeletingUser(u)}
+                title="Delete admin"
+              >
+                <Trash2 className="h-4 w-4 text-danger" />
               </Button>
             )}
           </div>
         ),
-      },
-    ],
-    [canManage]
-  );
-return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold">Admins</h1>
-        {canManage && (
-          <Button onClick={() => { setEditingUser(null); setModalOpen(true); }}>
+      });
+    }
+    return cols;
+  }, [canManage]);
+
+  const meta = usersQuery.data?.meta ?? EMPTY_META;
+  const users = usersQuery.data?.items ?? [];
+  const isLoading = usersQuery.isPending;
+  const error = usersQuery.error;
+
+  if (error) {
+    return <ErrorMessage message={error instanceof Error ? error.message : 'Failed to load admins'} />;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Admin Users</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Manage admin accounts, roles and permissions.</p>
+        </div>
+        {canManage && !showForm && (
+          <Button onClick={handleAddNew}>
+            <UserPlus className="mr-2 h-4 w-4" />
             Add Admin
           </Button>
         )}
       </div>
 
-      <Card className="p-4">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row">
-          <Input
-            placeholder="Search by name, email or phone..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-              const v = e.target.value;
-              setTimeout(() => setDebouncedSearch(v), 400);
+      {showForm ? (
+        <Card className="p-6">
+          <div className="mb-6">
+            <Button variant="outline" onClick={handleCancelForm} className="mb-4">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to List
+            </Button>
+            <h2 className="text-xl font-semibold">
+              {editingUser ? 'Edit Admin' : 'Add New Admin'}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {editingUser ? 'Update admin details, role and permissions.' : 'Create a new admin user with appropriate access.'}
+            </p>
+          </div>
+          <AdminForm
+            editingUser={editingUser}
+            catalog={catalog}
+            catalogLoading={catalogQuery.isPending}
+            submitting={createMutation.isPending || updateMutation.isPending}
+            onSubmit={(data) => {
+              if (editingUser) {
+                updateMutation.mutate({ id: editingUser.id, data });
+              } else {
+                createMutation.mutate(data as AdminUserFormValues & { password: string });
+              }
             }}
-            className="sm:max-w-xs"
+            onCancel={handleCancelForm}
           />
-          <Select
-            value={roleFilter}
-            onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
-            className="sm:max-w-[180px]"
-          >
-            <option value="">All roles</option>
-            {catalog.roles.map((r) => (
-              <option key={r.id} value={r.slug}>{r.name}</option>
-            ))}
-          </Select>
-        </div>
+        </Card>
+      ) : (
+        <>
+          <Card className="p-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="relative max-w-sm">
+                <Input
+                  value={search}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  placeholder="Search by name or email..."
+                  className="pl-9"
+                />
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <div className="flex items-center gap-2">
+                <Select value={roleFilter} onChange={(e) => handleRoleFilter(e.target.value)} className="w-40">
+                  <option value="">All Roles</option>
+                  {catalog.roles
+                    .filter((r) => ['superadmin', 'admin', 'staff', 'warehouse_manager'].includes(r.slug))
+                    .map((r) => (
+                      <option key={r.id} value={r.slug}>{r.name}</option>
+                    ))}
+                </Select>
+              </div>
+            </div>
+          </Card>
 
-        {usersQuery.isError ? (
-          <ErrorMessage message="Admins could not be loaded." onRetry={() => usersQuery.refetch()} />
-        ) : (
-          <>
-            <AdminTable
-              columns={columns}
-              data={users}
-              isLoading={usersQuery.isLoading}
-              emptyMessage="No admins found"
-            />
-            {meta.total > 0 && <Pagination meta={meta} onPageChange={setPage} className="mt-4" />}
-          </>
-        )}
-      </Card>
+          <Card>
+            <AdminTable columns={columns} data={users} isLoading={isLoading} emptyMessage="No admin users found." />
+            <div className="flex items-center justify-between border-t border-border px-4 py-3">
+              <span className="text-sm text-muted-foreground">
+                Showing {meta.from ?? 0} to {meta.to ?? 0} of {meta.total ?? 0} admins
+              </span>
+              <Pagination meta={meta} onPageChange={setPage} />
+            </div>
+          </Card>
+        </>
+      )}
 
-      <AdminFormModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        editingUser={editingUser}
-        catalog={catalog}
-        catalogLoading={catalogQuery.isLoading}
-        submitting={createMutation.isPending || updateMutation.isPending}
-        onSubmit={(data) => {
-          if (editingUser) {
-            updateMutation.mutate({ id: editingUser.id, data });
-          } else {
-            createMutation.mutate(data as AdminUserFormValues & { password: string });
+      {deletingUser && (
+        <ConfirmDialog
+          open={!!deletingUser}
+          onClose={() => setDeletingUser(null)}
+          onConfirm={() => deleteMutation.mutate(deletingUser.id)}
+          title="Delete Admin"
+          description={`Are you sure you want to delete ${deletingUser.name}? This action cannot be undone.`}
+          confirmText="Delete"
+          variant="danger"
+        />
+      )}
+
+      {togglingUser && (
+        <ConfirmDialog
+          open={!!togglingUser}
+          onClose={() => setTogglingUser(null)}
+          onConfirm={() => toggleMutation.mutate(togglingUser.id)}
+          title={togglingUser.is_active ? 'Deactivate Admin' : 'Activate Admin'}
+          description={togglingUser.is_active 
+            ? `Are you sure you want to deactivate ${togglingUser.name}? They will not be able to log in.`
+            : `Are you sure you want to activate ${togglingUser.name}? They will be able to log in.`
           }
-        }}
-      />
-
-      <ConfirmDialog
-        open={!!deletingUser}
-        onClose={() => setDeletingUser(null)}
-        onConfirm={() => deletingUser && deleteMutation.mutate(deletingUser.id)}
-        title="Delete Admin"
-        description={`Are you sure you want to permanently delete "${deletingUser?.name}"? This action cannot be undone.`}
-        confirmText="Delete"
-        variant="danger"
-      />
-
-      <ConfirmDialog
-        open={!!togglingUser}
-        onClose={() => setTogglingUser(null)}
-        onConfirm={() => togglingUser && toggleMutation.mutate(togglingUser.id)}
-        title={togglingUser?.is_active === false ? 'Activate Admin' : 'Deactivate Admin'}
-        description={
-          togglingUser?.is_active === false
-            ? `Activate "${togglingUser?.name}"? They will regain access to their permitted modules.`
-            : `Deactivate "${togglingUser?.name}"? They will immediately lose access to the admin panel.`
-        }
-        confirmText={togglingUser?.is_active === false ? 'Activate' : 'Deactivate'}
-        variant={togglingUser?.is_active === false ? 'default' : 'danger'}
-      />
+          confirmText={togglingUser.is_active ? 'Deactivate' : 'Activate'}
+          variant={togglingUser.is_active ? 'danger' : 'default'}
+        />
+      )}
     </div>
   );
 }
 
-function AdminFormModal({
-  open,
-  onClose,
-  editingUser,
-  catalog,
-  catalogLoading,
-  submitting,
-  onSubmit,
-}: {
-  open: boolean;
-  onClose: () => void;
+interface AdminFormProps {
   editingUser: User | null;
   catalog: AccessCatalog;
   catalogLoading: boolean;
   submitting: boolean;
   onSubmit: (data: AdminUserFormValues & { password?: string }) => void;
-}) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  onCancel: () => void;
+}
+
+function AdminForm({
+  editingUser,
+  catalog,
+  catalogLoading,
+  submitting,
+  onSubmit,
+  onCancel,
+}: AdminFormProps) {
+  const [name, setName] = useState(editingUser?.name ?? '');
+  const [email, setEmail] = useState(editingUser?.email ?? '');
+  const [phone, setPhone] = useState(editingUser?.phone ?? '');
   const [password, setPassword] = useState('');
-  const [isActive, setIsActive] = useState(true);
-  const [roles, setRoles] = useState<string[]>([]);
+  const [isActive, setIsActive] = useState(editingUser?.is_active ?? true);
+  const [roles, setRoles] = useState<string[]>(editingUser?.role ? [editingUser.role] : []);
   const [permissions, setPermissions] = useState<number[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loadedId, setLoadedId] = useState<number | null>(null);
 
-  // The UserResource returns permission slugs; map them back to permission ids.
-  const slugToId: Record<string, number> = {};
-  Object.values(catalog.permissions).flat().forEach((p) => { slugToId[p.slug] = p.id; });
-
-  // Sync local state when the modal opens for create or edit.
-  // Wait for the access catalog so permission slugs can be mapped back to ids.
-  if (open && !catalogLoading && editingUser && editingUser.id !== loadedId) {
-    setName(editingUser.name);
-    setEmail(editingUser.email ?? '');
-    setPhone(editingUser.phone ?? '');
-    setPassword('');
-    setIsActive(editingUser.is_active !== false);
-    setRoles(editingUser.roles ?? []);
-    setPermissions(
-      (editingUser.permissions ?? [])
-        .map((s) => slugToId[s])
-        .filter((id): id is number => typeof id === 'number')
-    );
-    setLoadedId(editingUser.id);
-  }
-  if (open && !catalogLoading && !editingUser && loadedId !== 0) {
-    setName('');
-    setEmail('');
-    setPhone('');
-    setPassword('');
-    setIsActive(true);
-    setRoles(['admin']);
-    setPermissions([]);
-    setLoadedId(0);
-  }
-
-  const validate = (): boolean => {
-    const next: Record<string, string> = {};
-    if (!name.trim()) next.name = 'Name is required';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) next.email = 'A valid email is required';
-    if (!editingUser && password.length < 8) next.password = 'Password must be at least 8 characters';
-    setErrors(next);
-    return Object.keys(next).length === 0;
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!name.trim()) newErrors.name = 'Name is required';
+    if (!email.trim()) newErrors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = 'Invalid email format';
+    if (!editingUser && !password) newErrors.password = 'Password is required';
+    else if (password && password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -335,78 +347,72 @@ function AdminFormModal({
     });
   };
 
+  if (catalogLoading) {
+    return <p className="py-8 text-center text-sm text-muted-foreground">Loading access catalog...</p>;
+  }
+
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={editingUser ? 'Edit Admin' : 'Add Admin'}
-      description={editingUser ? 'Update details, role and permissions.' : 'Create a new admin user.'}
-      className="max-w-2xl"
-    >
-      {catalogLoading ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">Loading access catalog...</p>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium">Name</label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Admin name" error={errors.name} />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">Email</label>
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@uthano.com" error={errors.email} />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">Phone</label>
-              <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01XXXXXXXXX" />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">
-                {editingUser ? 'New Password (optional)' : 'Password'}
-              </label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={editingUser ? 'Leave blank to keep current' : 'Min 8 characters'}
-                error={errors.password}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">Role</label>
-            <Select value={roles[0] ?? ''} onChange={(e) => setRoles(e.target.value ? [e.target.value] : [])}>
-              <option value="">Select a role</option>
-              {catalog.roles.map((r) => (
-                <option key={r.id} value={r.slug}>{r.name}</option>
-              ))}
-            </Select>
-          </div>
-
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              className="h-4 w-4 rounded border-border text-primary"
-            />
-            <span className="text-sm">Active (can log in)</span>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-sm font-medium">Name</label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Admin name" error={errors.name} />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium">Email</label>
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@uthano.com" error={errors.email} />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium">Phone</label>
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="01XXXXXXXXX" />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            {editingUser ? 'New Password (optional)' : 'Password'}
           </label>
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={editingUser ? 'Leave blank to keep current' : 'Min 8 characters'}
+            error={errors.password}
+          />
+        </div>
+      </div>
 
-          <div>
-            <p className="mb-2 text-sm font-medium">Direct Permissions</p>
-            <PermissionChecklist groups={catalog.permissions} selected={permissions} onChange={setPermissions} />
-          </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium">Role</label>
+        <Select value={roles[0] ?? ''} onChange={(e) => setRoles(e.target.value ? [e.target.value] : [])}>
+          <option value="">Select a role</option>
+          {catalog.roles
+            .filter((r) => ['superadmin', 'admin', 'staff', 'warehouse_manager'].includes(r.slug))
+            .map((r) => (
+              <option key={r.id} value={r.slug}>{r.name}</option>
+            ))}
+        </Select>
+      </div>
 
-          <div className="flex justify-end gap-2 border-t border-border pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" isLoading={submitting}>
-              {submitting ? 'Saving...' : editingUser ? 'Save Changes' : 'Create Admin'}
-            </Button>
-          </div>
-        </form>
-      )}
-    </Modal>
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={isActive}
+          onChange={(e) => setIsActive(e.target.checked)}
+          className="h-4 w-4 rounded border-border text-primary"
+        />
+        <span className="text-sm">Active (can log in)</span>
+      </label>
+
+      <div>
+        <p className="mb-2 text-sm font-medium">Direct Permissions</p>
+        <PermissionChecklist groups={catalog.permissions} selected={permissions} onChange={setPermissions} />
+      </div>
+
+      <div className="flex justify-end gap-2 border-t border-border pt-6">
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" isLoading={submitting}>
+          {submitting ? 'Saving...' : editingUser ? 'Save Changes' : 'Create Admin'}
+        </Button>
+      </div>
+    </form>
   );
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { RolesClient } from './RolesClient';
+import { RolesListClient } from './RolesListClient';
 
 export const metadata: Metadata = {
   title: 'Roles',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function RolesPage() {
-  return <RolesClient />;
+  return <RolesListClient />;
 }

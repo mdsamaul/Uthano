@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: 'Products',
   description: 'Manage UTHANO products.',
 };
+export const dynamic = 'force-dynamic';
 
 export default function AdminProductsPage() {
   return <ProductsClient />;

@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Permission;
+use App\Models\Role;
 use Database\Factories\UserFactory;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -139,5 +143,92 @@ class User extends Authenticatable
     public function hasAdminAccess(): bool
     {
         return in_array($this->role, ['superadmin', 'admin', 'staff', 'warehouse_manager']);
+    }
+
+    // ============================================
+    // RBAC: Roles & Permissions (many-to-many)
+    // ============================================
+
+    /**
+     * Roles assigned to the user through the role_user pivot table.
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    /**
+     * Permissions directly assigned to the user (permission_user pivot).
+     */
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class);
+    }
+
+    /**
+     * Permissions granted by the user's role (role column mapped to the roles table).
+     */
+    public function rolePermissions()
+    {
+        if (! $this->role) {
+            return collect();
+        }
+
+        $role = Role::where('slug', $this->role)->with('permissions')->first();
+
+        return $role ? collect($role->permissions->pluck('slug')) : collect();
+    }
+
+    /**
+     * All effective permission slugs: role-based + directly assigned.
+     */
+    public function allPermissions()
+    {
+        $slugs = $this->rolePermissions();
+
+        return $slugs->merge($this->permissions()->pluck('permissions.slug'))->unique()->values();
+    }
+
+    /**
+     * Check whether the user has a permission (superadmin always bypasses).
+     * All other users must hold the permission either through their role or
+     * from direct assignment.
+     */
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->allPermissions()->contains($permission);
+    }
+
+    /**
+     * Sync the roles (by slug) assigned to the user and keep the simple
+     * `role` column in sync with the primary role.
+     */
+    public function syncRoles(array $roleSlugs): void
+    {
+        $roleSlugs = array_values(array_filter(array_unique($roleSlugs)));
+
+        if (empty($roleSlugs)) {
+            $this->roles()->sync([]);
+            $this->role = null;
+
+            return;
+        }
+
+        $roleIds = Role::whereIn('slug', $roleSlugs)->pluck('id');
+        $this->roles()->sync($roleIds);
+
+        $this->role = $roleSlugs[0];
+    }
+
+    /**
+     * Sync the permissions directly assigned to the user (by permission id).
+     */
+    public function syncPermissions(array $permissionIds): void
+    {
+        $this->permissions()->sync(array_values(array_unique($permissionIds)));
     }
 }

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCartStore } from '@/store';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, getImageUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/common/state-components';
@@ -64,7 +64,7 @@ export function CartClient() {
                 >
                   {item.product?.images?.[0]?.url ? (
                     <Image
-                      src={item.product.images[0].url}
+                      src={getImageUrl(item.product.images[0].url)}
                       alt={item.product.name}
                       fill
                       sizes="96px"

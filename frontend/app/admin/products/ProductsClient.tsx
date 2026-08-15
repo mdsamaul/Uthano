@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -12,14 +13,23 @@ import { ConfirmDialog } from '@/components/ui/modal';
 import { ErrorMessage } from '@/components/common/state-components';
 import { useUIStore } from '@/store';
 import { useAccess } from '@/hooks/use-access';
-import { formatBDT, STOCK_STATUS_LABELS, STOCK_STATUS_COLORS } from '@/lib/utils';
+import { useRolePath } from '@/lib/role-utils';
+import {
+  formatBDT,
+  STOCK_STATUS_LABELS,
+  STOCK_STATUS_COLORS,
+  PRODUCT_STATUS_LABELS,
+  PRODUCT_STATUS_COLORS,
+} from '@/lib/utils';
 import { Edit, Trash2, Plus } from 'lucide-react';
 import { Product } from '@/types';
 
 export function ProductsClient() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const showToast = useUIStore((s) => s.showToast);
   const { hasAdminAccess } = useAccess();
+  const { to } = useRolePath();
   const canManage = hasAdminAccess;
   const canDelete = hasAdminAccess;
 
@@ -36,6 +46,10 @@ export function ProductsClient() {
       showToast('Product deleted successfully.');
       setDeletingProduct(null);
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'top-products'] });
+      router.refresh();
     },
     onError: (err) => showToast(err instanceof Error ? err.message : 'Unable to delete product.', 'error'),
   });
@@ -66,12 +80,40 @@ export function ProductsClient() {
       ),
     },
     {
+      key: 'status',
+      header: 'Status',
+      render: (p: Product) => (
+        <Badge className={PRODUCT_STATUS_COLORS[p.status] ?? ''}>
+          {PRODUCT_STATUS_LABELS[p.status] ?? p.status}
+        </Badge>
+      ),
+    },
+    {
+      key: 'source',
+      header: 'Farm / Farmer',
+      render: (p: Product) => {
+        const src = p.source_summary;
+        if (!src || !src.farm_name) {
+          return <span className="text-xs text-muted-foreground">Not stocked yet</span>;
+        }
+        return (
+          <div>
+            <p className="text-sm font-medium">{src.farm_name}</p>
+            <p className="text-xs text-muted-foreground">
+              {src.farmer?.full_name ?? src.district ?? ''}
+              {src.farmer?.full_name && src.district ? ` · ${src.district}` : ''}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
       key: 'actions',
       header: 'Actions',
       render: (p: Product) => (
-        <div className="flex gap-1">
+                <div className="flex gap-1">
           {canManage && (
-            <Link href={`/admin/products/${p.id}/edit`}>
+          <Link href={to(`/products/${p.id}/edit`)}>
               <Button variant="ghost" size="sm">
                 <Edit className="h-3 w-3" />
               </Button>
@@ -90,9 +132,9 @@ export function ProductsClient() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Products</h1>
+                <h1 className="text-2xl font-bold">Products</h1>
         {canManage && (
-          <Link href="/admin/products/new">
+          <Link href={to('/products/new')}>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
               Add Product
