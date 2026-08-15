@@ -35,7 +35,7 @@ function LoginFormContent() {
       showToast(`Welcome back, ${user.name}!`);
 
       const redirect = searchParams.get('redirect');
-      if (user.role === 'admin') {
+      if (user.role === 'superadmin' || user.role === 'admin') {
         router.push('/admin');
       } else if (user.role === 'farmer') {
         router.push('/farmer');
