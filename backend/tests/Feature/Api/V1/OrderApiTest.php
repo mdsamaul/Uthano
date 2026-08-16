@@ -5,6 +5,7 @@ namespace Tests\Feature\Api\V1;
 use App\Models\CustomerAddress;
 use App\Models\CustomerProfile;
 use App\Models\Order;
+use App\Models\Permission;
 use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\RoleAndPermissionSeeder;
@@ -117,5 +118,70 @@ class OrderApiTest extends TestCase
             ->assertJsonPath('data.items.0.product.id', $product->id)
             ->assertJsonPath('data.items.0.product.slug', $product->slug)
             ->assertJsonPath('data.items.0.subtotal', 100);
+    }
+
+    private function actingAsOrderAdmin(): User
+    {
+        $user = User::factory()->create();
+        $user->syncRoles(['admin']);
+
+        $permissionIds = Permission::whereIn('slug', [
+            'order.view', 'order.update', 'order.status.update',
+        ])->pluck('id')->all();
+
+        $user->syncPermissions($permissionIds);
+
+        return $user;
+    }
+
+    public function test_admin_can_advance_order_status_forward(): void
+    {
+        $admin = $this->actingAsOrderAdmin();
+        $order = Order::factory()->create(['order_status' => 'PROCESSING']);
+
+        $response = $this->actingAs($admin)->postJson("/api/v1/admin/orders/{$order->id}/status", [
+            'status' => 'PACKED',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true, 'message' => 'Order status updated successfully']);
+
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'order_status' => 'PACKED']);
+    }
+
+    public function test_order_status_cannot_go_backwards(): void
+    {
+        $admin = $this->actingAsOrderAdmin();
+        $order = Order::factory()->create(['order_status' => 'PROCESSING']);
+
+        $this->actingAs($admin)->postJson("/api/v1/admin/orders/{$order->id}/status", [
+            'status' => 'CONFIRMED',
+        ])->assertStatus(422);
+
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'order_status' => 'PROCESSING']);
+    }
+
+    public function test_order_status_cannot_skip_steps(): void
+    {
+        $admin = $this->actingAsOrderAdmin();
+        $order = Order::factory()->create(['order_status' => 'PENDING']);
+
+        $this->actingAs($admin)->postJson("/api/v1/admin/orders/{$order->id}/status", [
+            'status' => 'DELIVERED',
+        ])->assertStatus(422);
+
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'order_status' => 'PENDING']);
+    }
+
+    public function test_terminal_order_status_is_final(): void
+    {
+        $admin = $this->actingAsOrderAdmin();
+        $order = Order::factory()->create(['order_status' => 'CANCELLED']);
+
+        $this->actingAs($admin)->postJson("/api/v1/admin/orders/{$order->id}/status", [
+            'status' => 'DELIVERED',
+        ])->assertStatus(422);
+
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'order_status' => 'CANCELLED']);
     }
 }

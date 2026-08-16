@@ -339,7 +339,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Create demo delivery zone
+                // Create demo delivery zone
         \App\Models\DeliveryZone::updateOrCreate(
             ['name' => 'Jhenaidah Sadar', 'district' => 'Jhenaidah'],
             [
@@ -351,5 +351,213 @@ class DatabaseSeeder extends Seeder
                 'status' => 'ACTIVE',
             ]
         );
+
+        // ============================================
+        // DELIVERY AGENT
+        // ============================================
+        $deliveryAgentUser = User::updateOrCreate(
+            ['email' => 'agent@uthano.com'],
+            [
+                'name' => 'Delivery Agent',
+                'password' => Hash::make('password'),
+                'phone' => '01700000010',
+                'is_active' => true,
+                'role' => 'delivery_agent',
+            ]
+        );
+
+                $deliveryAgent = \App\Models\DeliveryAgent::updateOrCreate(
+            ['user_id' => $deliveryAgentUser->id],
+            [
+                'agent_code' => 'DEL-AGENT-001',
+                'phone' => '01700000010',
+                'vehicle_type' => 'Motorcycle',
+                'vehicle_number' => 'DH-1234',
+                'status' => 'ACTIVE',
+            ]
+        );
+
+        // ============================================
+        // ORDERS & DELIVERIES (demo data)
+        // ============================================
+        $customerProfile = \App\Models\CustomerProfile::where('customer_code', 'CUS-DEMO-001')->first();
+        $deliveryZone = \App\Models\DeliveryZone::where('name', 'Jhenaidah Sadar')->first();
+        $warehouse = \App\Models\Warehouse::where('warehouse_code', 'WH-JH-001')->first();
+
+        if ($customerProfile) {
+            // Create delivery address for the customer
+            $address = \App\Models\CustomerAddress::updateOrCreate(
+                ['customer_profile_id' => $customerProfile->id, 'phone' => '01700000001'],
+                [
+                    'name' => 'Demo Customer',
+                    'phone' => '01700000001',
+                    'division' => 'Khulna',
+                    'district' => 'Jhenaidah',
+                    'upazila' => 'Kaliganj',
+                    'area' => 'Sadar',
+                    'address_line' => '123 Main Road, Kaliganj, Jhenaidah',
+                    'postal_code' => '75100',
+                    'address_type' => 'HOME',
+                    'is_default' => true,
+                ]
+            );
+
+            // Order 1 — Delivered
+            $order1 = \App\Models\Order::updateOrCreate(
+                ['order_number' => 'UTH-DEMO-001'],
+                [
+                    'customer_id' => $customerProfile->id,
+                    'address_id' => $address->id,
+                    'subtotal' => 150,
+                    'discount' => 0,
+                    'delivery_charge' => 50,
+                    'tax' => 0,
+                    'total' => 200,
+                    'currency' => 'BDT',
+                    'payment_method' => 'COD',
+                    'payment_status' => 'PENDING',
+                    'order_status' => 'DELIVERED',
+                    'notes' => null,
+                    'placed_at' => now()->subDays(2),
+                    'confirmed_at' => now()->subDays(2),
+                    'delivered_at' => now()->subDays(1),
+                ]
+            );
+
+            \App\Models\OrderItem::updateOrCreate(
+                ['order_id' => $order1->id, 'product_id' => $guava->id],
+                [
+                    'product_name' => 'Fresh Guava',
+                    'sku' => 'UTH-GUAVA-001',
+                    'quantity' => 2,
+                    'unit_id' => $kg->id,
+                    'unit_price' => 75,
+                    'discount' => 0,
+                    'total' => 150,
+                ]
+            );
+
+            \App\Models\Delivery::updateOrCreate(
+                ['order_id' => $order1->id],
+                [
+                    'delivery_code' => 'DEL-' . strtoupper(uniqid()),
+                    'delivery_agent_id' => $deliveryAgent->id,
+                    'delivery_zone_id' => $deliveryZone?->id,
+                    'pickup_warehouse_id' => $warehouse?->id,
+                    'assigned_at' => now()->subDays(2),
+                    'picked_up_at' => now()->subDays(2),
+                    'out_for_delivery_at' => now()->subDays(2),
+                    'delivered_at' => now()->subDays(1),
+                    'status' => 'DELIVERED',
+                    'delivery_fee' => 50,
+                    'customer_note' => null,
+                    'proof_of_delivery' => null,
+                ]
+            );
+
+            // Order 2 — Pending (not yet assigned)
+            $order2 = \App\Models\Order::updateOrCreate(
+                ['order_number' => 'UTH-DEMO-002'],
+                [
+                    'customer_id' => $customerProfile->id,
+                    'address_id' => $address->id,
+                    'subtotal' => 300,
+                    'discount' => 0,
+                    'delivery_charge' => 50,
+                    'tax' => 0,
+                    'total' => 350,
+                    'currency' => 'BDT',
+                    'payment_method' => 'COD',
+                    'payment_status' => 'PENDING',
+                    'order_status' => 'PENDING',
+                    'notes' => null,
+                    'placed_at' => now()->subHours(2),
+                    'confirmed_at' => now()->subHours(2),
+                ]
+            );
+
+            \App\Models\OrderItem::updateOrCreate(
+                ['order_id' => $order2->id, 'product_id' => $mango->id],
+                [
+                    'product_name' => 'Fresh Mango',
+                    'sku' => 'UTH-MANGO-001',
+                    'quantity' => 3,
+                    'unit_id' => $kg->id,
+                    'unit_price' => 100,
+                    'discount' => 0,
+                    'total' => 300,
+                ]
+            );
+
+            \App\Models\Delivery::updateOrCreate(
+                ['order_id' => $order2->id],
+                [
+                    'delivery_code' => 'DEL-' . strtoupper(uniqid()),
+                    'delivery_agent_id' => null,
+                    'delivery_zone_id' => $deliveryZone?->id,
+                    'pickup_warehouse_id' => $warehouse?->id,
+                    'assigned_at' => null,
+                    'picked_up_at' => null,
+                    'out_for_delivery_at' => null,
+                    'delivered_at' => null,
+                    'status' => 'PENDING',
+                    'delivery_fee' => 50,
+                    'customer_note' => null,
+                    'proof_of_delivery' => null,
+                ]
+            );
+
+            // Order 3 — Out for delivery
+            $order3 = \App\Models\Order::updateOrCreate(
+                ['order_number' => 'UTH-DEMO-003'],
+                [
+                    'customer_id' => $customerProfile->id,
+                    'address_id' => $address->id,
+                    'subtotal' => 75,
+                    'discount' => 0,
+                    'delivery_charge' => 50,
+                    'tax' => 0,
+                    'total' => 125,
+                    'currency' => 'BDT',
+                    'payment_method' => 'COD',
+                    'payment_status' => 'PENDING',
+                    'order_status' => 'OUT_FOR_DELIVERY',
+                    'notes' => null,
+                    'placed_at' => now()->subHours(5),
+                    'confirmed_at' => now()->subHours(5),
+                ]
+            );
+
+            \App\Models\OrderItem::updateOrCreate(
+                ['order_id' => $order3->id, 'product_id' => $guava->id],
+                [
+                    'product_name' => 'Fresh Guava',
+                    'sku' => 'UTH-GUAVA-001',
+                    'quantity' => 1,
+                    'unit_id' => $kg->id,
+                    'unit_price' => 75,
+                    'discount' => 0,
+                    'total' => 75,
+                ]
+            );
+
+            \App\Models\Delivery::updateOrCreate(
+                ['order_id' => $order3->id],
+                [
+                    'delivery_code' => 'DEL-' . strtoupper(uniqid()),
+                    'delivery_agent_id' => $deliveryAgent->id,
+                    'delivery_zone_id' => $deliveryZone?->id,
+                    'pickup_warehouse_id' => $warehouse?->id,
+                    'assigned_at' => now()->subHours(3),
+                    'picked_up_at' => now()->subHours(2),
+                    'out_for_delivery_at' => now()->subHours(1),
+                    'delivered_at' => null,
+                    'status' => 'OUT_FOR_DELIVERY',
+                    'delivery_fee' => 50,
+                    'customer_note' => null,
+                    'proof_of_delivery' => null,
+                ]
+            );
+        }
     }
 }

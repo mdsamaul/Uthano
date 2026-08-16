@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 export default function RoleOrderDetailPage() {
   const pathname = usePathname();
   const segments = pathname.split('/');
-  const id = segments[segments.length - 2]; // /{role}/orders/{id}
+  const id = segments[segments.length - 1]; // /{role}/orders/{id}
 
   return <OrderDetailClient orderId={id} />;
 }

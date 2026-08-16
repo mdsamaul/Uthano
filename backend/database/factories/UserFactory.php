@@ -27,19 +27,19 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indicate that the model's email address should be verified.
+     *
+     * NOTE: The `simplify_user_roles` migration drops the
+     * `email_verified_at` / `remember_token` columns, so the factory
+     * must not set them (keeps in-memory SQLite tests passing).
      */
-    public function unverified(): static
+    public function verified(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this;
     }
 }

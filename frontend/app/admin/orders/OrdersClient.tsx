@@ -29,11 +29,14 @@ export function OrdersClient() {
     {
       key: 'status',
       header: 'Status',
-      render: (o: Order) => (
-        <Badge className={ORDER_STATUS_COLORS[o.status]}>
-          {ORDER_STATUS_LABELS[o.status]}
-        </Badge>
-      ),
+      render: (o: Order) => {
+        const statusKey = (o.status || '').toLowerCase();
+        return (
+          <Badge className={ORDER_STATUS_COLORS[statusKey] ?? 'bg-muted text-muted-foreground'}>
+            {ORDER_STATUS_LABELS[statusKey] ?? o.status}
+          </Badge>
+        );
+      },
     },
     {
       key: 'total',

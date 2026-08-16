@@ -13,7 +13,9 @@ class FarmerRequest extends FormRequest
 
     public function rules(): array
     {
-        $farmerId = $this->route('farmer')?->id;
+        // Route param is `{id}` (e.g. `PUT /admin/farmers/{id}`).
+        // Fallback keeps compatibility with any implicit `{farmer}` binding.
+        $farmerId = $this->route('id') ?? $this->route('farmer')?->id;
 
         return [
             'user_id' => ['nullable', 'exists:users,id'],

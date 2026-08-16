@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '@/services';
@@ -36,7 +36,7 @@ export function StockInPage() {
 
   const [harvestBatches, setHarvestBatches] = useState<HarvestBatch[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [form, setForm] = useState<ReceiveFormValues>({
     harvest_batch_id: '',
     product_id: '',
@@ -96,6 +96,19 @@ export function StockInPage() {
     });
   };
 
+  // Initialize state once the queries settle (registered before any early
+  // returns so every render calls the hooks in the same order).
+  const initState = () => {
+    setHarvestBatches(batchesQuery.data?.items ?? []);
+    setProducts(productsQuery.data?.items ?? []);
+    setWarehouses(warehousesQuery.data?.items ?? []);
+  };
+
+  useEffect(() => {
+    initState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchesQuery.data, productsQuery.data, warehousesQuery.data]);
+
   if (!canAdjust) {
     return (
       <div className="container mx-auto p-6">
@@ -111,18 +124,6 @@ export function StockInPage() {
       </div>
     );
   }
-
-  // Initialize state on mount
-  const initState = () => {
-    setHarvestBatches(batchesQuery.data?.items ?? []);
-    setProducts(productsQuery.data?.items ?? []);
-    setWarehouses(warehousesQuery.data ?? []);
-  };
-
-  // Run after queries settle
-  useEffect(() => {
-    initState();
-  }, [batchesQuery.data, productsQuery.data, warehousesQuery.data]);
 
   return (
     <div className="container mx-auto p-6">
@@ -186,7 +187,6 @@ export function StockInPage() {
                 ))}
               </Select>
             </div>
-          </div>
 
             <div>
               <label className="mb-1 block text-sm font-medium">Quantity *</label>

@@ -22,11 +22,14 @@ export function DeliveriesClient() {
     {
       key: 'status',
       header: 'Status',
-      render: (d: Delivery) => (
-        <Badge className={ORDER_STATUS_COLORS[d.status]}>
-          {ORDER_STATUS_LABELS[d.status]}
-        </Badge>
-      ),
+      render: (d: Delivery) => {
+        const statusKey = (d.status || '').toLowerCase();
+        return (
+          <Badge className={ORDER_STATUS_COLORS[statusKey] ?? 'bg-muted text-muted-foreground'}>
+            {ORDER_STATUS_LABELS[statusKey] ?? d.status}
+          </Badge>
+        );
+      },
     },
   ];
 

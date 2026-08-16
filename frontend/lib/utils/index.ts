@@ -161,9 +161,16 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   confirmed: 'Confirmed',
   processing: 'Processing',
   packed: 'Packed',
+  ready_for_delivery: 'Ready for Delivery',
   out_for_delivery: 'Out for Delivery',
   delivered: 'Delivered',
   cancelled: 'Cancelled',
+  return_requested: 'Return Requested',
+  returned: 'Returned',
+  refunded: 'Refunded',
+  assigned: 'Assigned',
+  picked_up: 'Picked Up',
+  failed: 'Failed',
 };
 
 export const ORDER_STATUS_COLORS: Record<string, string> = {
@@ -171,9 +178,16 @@ export const ORDER_STATUS_COLORS: Record<string, string> = {
   confirmed: 'bg-blue-100 text-blue-800',
   processing: 'bg-purple-100 text-purple-800',
   packed: 'bg-indigo-100 text-indigo-800',
+  ready_for_delivery: 'bg-cyan-100 text-cyan-800',
   out_for_delivery: 'bg-orange-100 text-orange-800',
   delivered: 'bg-green-100 text-green-800',
   cancelled: 'bg-red-100 text-red-800',
+  return_requested: 'bg-amber-100 text-amber-800',
+  returned: 'bg-rose-100 text-rose-800',
+  refunded: 'bg-teal-100 text-teal-800',
+  assigned: 'bg-light-green-100 text-light-green-800',
+  picked_up: 'bg-light-blue-100 text-light-blue-800',
+  failed: 'bg-gray-100 text-gray-800',
 };
 
 // export const PAYMENT_METHOD_LABELS: Record<string, string> = {

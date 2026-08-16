@@ -16,10 +16,24 @@ import { useRolePath } from '@/lib/role-utils';
 import { ArrowLeft, Package } from 'lucide-react';
 import { AdminOrder, AdminOrderItem } from '@/types';
 
-const ORDER_STATUS_OPTIONS = [
-  'PENDING', 'CONFIRMED', 'PROCESSING', 'PACKED', 'READY_FOR_DELIVERY',
-  'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED', 'RETURN_REQUESTED', 'RETURNED', 'REFUNDED',
-] as const;
+/**
+ * Forward-only status flow.
+ * An order can ONLY move to one of the listed next statuses — it can never
+ * go BACK to a previous step (e.g. DELIVERED can't return to PENDING).
+ */
+const ORDER_STATUS_FLOW: Record<string, readonly string[]> = {
+  PENDING: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['PROCESSING', 'CANCELLED'],
+  PROCESSING: ['PACKED', 'CANCELLED'],
+  PACKED: ['READY_FOR_DELIVERY', 'CANCELLED'],
+  READY_FOR_DELIVERY: ['OUT_FOR_DELIVERY', 'CANCELLED'],
+  OUT_FOR_DELIVERY: ['DELIVERED', 'CANCELLED'],
+  DELIVERED: ['RETURN_REQUESTED'],
+  CANCELLED: [],
+  RETURN_REQUESTED: ['RETURNED', 'REFUNDED'],
+  RETURNED: ['REFUNDED'],
+  REFUNDED: [],
+};
 
 function statusLabel(status?: string): string {
   if (!status) return '—';
@@ -182,21 +196,33 @@ export function OrderDetailClient({ orderId }: { orderId: string }) {
                 <Badge className={statusColor(currentStatus)}>{statusLabel(currentStatus)}</Badge>
               </div>
               {canUpdate ? (
-                <div className="flex gap-2">
-                  <Select value={statusDraft} onChange={(e) => setStatusDraft(e.target.value)}>
-                    <option value="">Change status…</option>
-                    {ORDER_STATUS_OPTIONS.map((s) => (
-                      <option key={s} value={s}>{statusLabel(s)}</option>
-                    ))}
-                  </Select>
-                  <Button
-                    onClick={() => statusDraft && statusMutation.mutate(statusDraft)}
-                    disabled={!statusDraft || statusMutation.isPending}
-                    isLoading={statusMutation.isPending}
-                  >
-                    Save
-                  </Button>
-                </div>
+                (() => {
+                  const nextStatuses = ORDER_STATUS_FLOW[order.order_status] ?? [];
+                  if (nextStatuses.length === 0) {
+                    return (
+                      <p className="text-xs text-muted-foreground">
+                        This is a final status — the order can only move forward, so no further changes are allowed.
+                      </p>
+                    );
+                  }
+                  return (
+                    <div className="flex gap-2">
+                      <Select value={statusDraft} onChange={(e) => setStatusDraft(e.target.value)}>
+                        <option value="">Change status…</option>
+                        {nextStatuses.map((s) => (
+                          <option key={s} value={s}>{statusLabel(s)}</option>
+                        ))}
+                      </Select>
+                      <Button
+                        onClick={() => statusDraft && statusMutation.mutate(statusDraft)}
+                        disabled={!statusDraft || statusMutation.isPending}
+                        isLoading={statusMutation.isPending}
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  );
+                })()
               ) : (
                 <p className="text-xs text-muted-foreground">You need the order.update permission to change status.</p>
               )}

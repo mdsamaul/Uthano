@@ -119,7 +119,11 @@ class OrderController extends Controller
             'notes' => ['nullable', 'string'],
         ]);
 
-        $order = $this->orderService->updateStatus($order, $validated['status'], $validated['notes'] ?? null, $request->user()->id);
+        try {
+            $order = $this->orderService->updateStatus($order, $validated['status'], $validated['notes'] ?? null, $request->user()->id);
+        } catch (\RuntimeException $e) {
+            return ApiResponse::error($e->getMessage(), 422, ['status' => [$e->getMessage()]]);
+        }
 
         return ApiResponse::success('Order status updated successfully', new OrderResource($order));
     }
@@ -133,12 +137,16 @@ class OrderController extends Controller
             'reason' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $order = $this->orderService->updateStatus(
-            $order,
-            OrderStatus::CANCELLED->value,
-            $validated['reason'] ?? 'Cancelled by customer',
-            $request->user()->id
-        );
+        try {
+            $order = $this->orderService->updateStatus(
+                $order,
+                OrderStatus::CANCELLED->value,
+                $validated['reason'] ?? 'Cancelled by customer',
+                $request->user()->id
+            );
+        } catch (\RuntimeException $e) {
+            return ApiResponse::error($e->getMessage(), 422, ['reason' => [$e->getMessage()]]);
+        }
 
         return ApiResponse::success('Order cancelled successfully', new OrderResource($order));
     }

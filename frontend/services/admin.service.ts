@@ -124,6 +124,10 @@ export const adminService = {
     return apiGet<PaginatedData<AdminFarmer>>(`/admin/farmers${query}`);
   },
 
+  async getFarmer(id: number): Promise<AdminFarmer> {
+    return apiGet<AdminFarmer>(`/admin/farmers/${id}`);
+  },
+
   async createFarmer(data: Partial<AdminFarmer>): Promise<AdminFarmer> {
     return apiPost<AdminFarmer>('/admin/farmers', data);
   },
@@ -132,10 +136,19 @@ export const adminService = {
     return apiPut<AdminFarmer>(`/admin/farmers/${id}`, data);
   },
 
+  // Farmers
+  async deleteFarmer(id: number): Promise<void> {
+    await apiDelete<void>(`/admin/farmers/${id}`);
+  },
+
   // Farms
   async getFarms(page = 1, perPage = 20, search?: string, status?: string): Promise<PaginatedData<AdminFarm>> {
     const query = buildQueryString({ page, per_page: perPage, search, status });
     return apiGet<PaginatedData<AdminFarm>>(`/admin/farms${query}`);
+  },
+
+  async getFarm(id: number): Promise<AdminFarm> {
+    return apiGet<AdminFarm>(`/admin/farms/${id}`);
   },
 
   async createFarm(data: Partial<AdminFarm>): Promise<AdminFarm> {
@@ -150,14 +163,26 @@ export const adminService = {
     await apiDelete<void>(`/admin/farms/${id}`);
   },
 
-  // Harvests
+    // Harvests
   async getHarvests(page = 1, perPage = 20): Promise<PaginatedData<Harvest>> {
     const query = buildQueryString({ page, per_page: perPage });
     return apiGet<PaginatedData<Harvest>>(`/admin/harvests${query}`);
   },
 
+  async getHarvest(id: number): Promise<Harvest> {
+    return apiGet<Harvest>(`/admin/harvests/${id}`);
+  },
+
   async createHarvest(data: Partial<Harvest>): Promise<Harvest> {
     return apiPost<Harvest>('/admin/harvests', data);
+  },
+
+  async updateHarvest(id: number, data: Partial<Harvest>): Promise<Harvest> {
+    return apiPut<Harvest>(`/admin/harvests/${id}`, data);
+  },
+
+  async deleteHarvest(id: number): Promise<void> {
+    await apiDelete<void>(`/admin/harvests/${id}`);
   },
 
   // Batches

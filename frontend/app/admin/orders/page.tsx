@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { OrdersClient } from './OrdersClient';
 
 export const metadata: Metadata = { title: 'Orders', description: 'Manage UTHANO orders.' };
+export const dynamic = 'force-dynamic';
 
 export default function AdminOrdersPage() {
   return <OrdersClient />;

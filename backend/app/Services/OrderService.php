@@ -14,6 +14,25 @@ use RuntimeException;
 
 class OrderService
 {
+    /**
+     * Allowed forward-only transitions.
+     * An order can ONLY move to one of the listed next statuses — it can
+     * never go BACK to a previous step (e.g. DELIVERED can't return to PENDING).
+     */
+    private const ALLOWED_TRANSITIONS = [
+        OrderStatus::PENDING->value => [OrderStatus::CONFIRMED->value, OrderStatus::CANCELLED->value],
+        OrderStatus::CONFIRMED->value => [OrderStatus::PROCESSING->value, OrderStatus::CANCELLED->value],
+        OrderStatus::PROCESSING->value => [OrderStatus::PACKED->value, OrderStatus::CANCELLED->value],
+        OrderStatus::PACKED->value => [OrderStatus::READY_FOR_DELIVERY->value, OrderStatus::CANCELLED->value],
+        OrderStatus::READY_FOR_DELIVERY->value => [OrderStatus::OUT_FOR_DELIVERY->value, OrderStatus::CANCELLED->value],
+        OrderStatus::OUT_FOR_DELIVERY->value => [OrderStatus::DELIVERED->value, OrderStatus::CANCELLED->value],
+        OrderStatus::DELIVERED->value => [OrderStatus::RETURN_REQUESTED->value],
+        OrderStatus::CANCELLED->value => [],
+        OrderStatus::RETURN_REQUESTED->value => [OrderStatus::RETURNED->value, OrderStatus::REFUNDED->value],
+        OrderStatus::RETURNED->value => [OrderStatus::REFUNDED->value],
+        OrderStatus::REFUNDED->value => [],
+    ];
+
     public function __construct(
         private readonly InventoryService $inventoryService
     ) {}
@@ -159,6 +178,14 @@ class OrderService
     {
         return DB::transaction(function () use ($order, $newStatus, $notes, $userId) {
             $oldStatus = $order->order_status;
+
+            // Forward-only guard — an order can never move BACK to a previous status.
+            $allowed = self::ALLOWED_TRANSITIONS[$oldStatus] ?? [];
+            if (!in_array($newStatus, $allowed, true)) {
+                throw new RuntimeException(
+                    "Order status cannot be changed from {$oldStatus} to {$newStatus} — status can only move forward."
+                );
+            }
 
             $order->update([
                 'order_status' => $newStatus,

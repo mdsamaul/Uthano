@@ -256,16 +256,39 @@ export interface FarmCrop {
 
 export interface Harvest {
   id: number;
+  harvest_code: string;
   farm_id: number;
-  farm?: Farm;
-  crop_id: number;
-  crop?: FarmCrop;
+  farm?: {
+    id: number;
+    farm_code: string;
+    farm_name: string;
+    district: string;
+    upazila: string;
+    village: string;
+    farmer?: {
+      id: number;
+      farmer_code: string;
+      full_name: string;
+    };
+  };
+  product_id: number;
+  product?: {
+    id: number;
+    name: string;
+    sku: string;
+  };
   harvest_date: string;
-  quantity: number;
-  unit: string;
+  estimated_quantity: number;
+  actual_quantity: number;
+  quantity_unit_id: number;
+  quantity_unit?: {
+    id: number;
+    name: string;
+    symbol: string;
+  };
   quality_grade?: string;
+  status: 'RECORDED' | 'QUALITY_CHECKED' | 'BATCHED' | 'REJECTED';
   notes?: string;
-  status: 'pending' | 'approved' | 'rejected';
   batches?: HarvestBatch[];
   created_at: string;
   updated_at: string;
@@ -329,7 +352,7 @@ export interface Inventory {
 export interface Warehouse {
   id: number;
   name: string;
-  code: string;
+  warehouse_code: string;
   address: string;
   district: string;
   status: 'active' | 'inactive';
@@ -571,14 +594,31 @@ export interface Delivery {
   id: number;
   order_id: number;
   order?: Order;
-  agent_id?: number;
-  agent?: User;
-  zone_id?: number;
-  zone?: DeliveryZone;
-  status: 'pending' | 'assigned' | 'picked_up' | 'out_for_delivery' | 'delivered' | 'failed';
-  assigned_at?: string;
-  delivered_at?: string;
-  notes?: string;
+  delivery_code?: string;
+  order_number?: string;
+  customer_name?: string;
+  phone?: string;
+  delivery_agent_id?: number;
+  delivery_zone_id?: number;
+  pickup_warehouse_id?: number;
+  delivery_agent?: {
+    id: number;
+    name?: string | null;
+    phone?: string;
+  } | null;
+  delivery_zone?: {
+    id: number;
+    name: string;
+  } | null;
+  status: 'PENDING' | 'ASSIGNED' | 'PICKED_UP' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'FAILED' | 'CANCELLED' | 'RETURNING' | 'RETURNED';
+  assigned_at?: string | null;
+  picked_up_at?: string | null;
+  out_for_delivery_at?: string | null;
+  delivered_at?: string | null;
+  failed_at?: string | null;
+  delivery_fee?: number;
+  customer_note?: string | null;
+  proof_of_delivery?: string | null;
   created_at: string;
   updated_at: string;
 }
