@@ -9,7 +9,8 @@ export function cn(...inputs: ClassValue[]) {
 // Currency Formatting
 // ============================================
 
-export function formatBDT(amount: number): string {
+export function formatBDT(amount: number | undefined | null): string {
+  if (amount === undefined || amount === null) return '৳0';
   return `৳${amount.toLocaleString('en-BD', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
@@ -166,6 +167,7 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   delivered: 'Delivered',
   cancelled: 'Cancelled',
   return_requested: 'Return Requested',
+  returning: 'Returning',
   returned: 'Returned',
   refunded: 'Refunded',
   assigned: 'Assigned',
@@ -183,10 +185,11 @@ export const ORDER_STATUS_COLORS: Record<string, string> = {
   delivered: 'bg-green-100 text-green-800',
   cancelled: 'bg-red-100 text-red-800',
   return_requested: 'bg-amber-100 text-amber-800',
+  returning: 'bg-fuchsia-100 text-fuchsia-800',
   returned: 'bg-rose-100 text-rose-800',
   refunded: 'bg-teal-100 text-teal-800',
-  assigned: 'bg-light-green-100 text-light-green-800',
-  picked_up: 'bg-light-blue-100 text-light-blue-800',
+  assigned: 'bg-lime-100 text-lime-800',
+  picked_up: 'bg-sky-100 text-sky-800',
   failed: 'bg-gray-100 text-gray-800',
 };
 
